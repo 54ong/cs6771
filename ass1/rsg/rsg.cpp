@@ -4,7 +4,7 @@
  * and map classes as well as the custom Production and Definition
  * classes provided with the assignment.
  */
- 
+
 #include <map>
 #include <fstream>
 #include <cstdlib>
@@ -19,14 +19,13 @@ using namespace std;
  * collection of definitions that are spelled out in the referenced
  * file. 
  *
- * @param infile a valid reference to a flat text file storing the grammar.
+ * @param infile  a valid reference to a flat text file storing the grammar.
  * @param grammar a reference to the STL map, which maps nonterminal strings
  *                to their definitions.
  */
 
-static void readGrammar(ifstream& infile, map<string, Definition>& grammar)
-{
-   // your code here
+static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
+
 }
 
 /**
@@ -34,15 +33,14 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar)
  * sentences produced by applying the grammar rules. The number of
  * sentences should be as specified by the second parameter.
  *
- * @param grammar a reference to the STL map, which maps nonterminal strings
- *                to their definitions.
+ * @param grammar            a reference to the STL map, which maps nonterminal
+ *                           strings to their definitions.
  * @param numSentencesNeeded number of sentences to be produced
  */
- 
-static void generateRandomSentences(const map<string, Definition>& grammar, 
-				    int numSentencesNeeded)
-{
-   // your code here
+
+static void generateRandomSentences(const map<string, Definition>& grammar,
+		int numSentencesNeeded) {
+
 }
 
 /**
@@ -58,26 +56,25 @@ static void generateRandomSentences(const map<string, Definition>& grammar,
  *             token is represented as a '\0'-terminated C string.
  */
 
-int main(int argc, char *argv[])
-{
-  if (argc == 1) {
-    cerr << "You need to specify the name of a grammar file." << endl;
-    cerr << "Usage: rsg <path to grammar text file>" << endl;
-    
-    return EXIT_FAILURE;
-  }
-  
-  ifstream grammarFile(argv[1]);
-  if (grammarFile.fail()) {
-    cerr << "Failed to open the file named \"" << argv[1] << "\". "
-            "Check to ensure the file exists." << endl;
-    return EXIT_FAILURE;
-  }
-  
-  // things are looking good...
-  map<string, Definition> grammar;
-  readGrammar(grammarFile, grammar);
-  generateRandomSentences(grammar, 3);
-  
-  return EXIT_SUCCESS;
+int main(int argc, char *argv[]) {
+	if (argc == 1) {
+		cerr << "You need to specify the name of a grammar file." << endl;
+		cerr << "Usage: rsg <path to grammar text file>" << endl;
+
+		return EXIT_FAILURE;
+	}
+
+	ifstream grammarFile(argv[1]);
+	if (grammarFile.fail()) {
+		cerr << "Failed to open the file named \"" << argv[1] << "\". "
+				"Check to ensure the file exists." << endl;
+		return EXIT_FAILURE;
+	}
+
+	// things are looking good...
+	map<string, Definition> grammar;
+	readGrammar(grammarFile, grammar);
+	generateRandomSentences(grammar, 3);
+
+	return EXIT_SUCCESS;
 }

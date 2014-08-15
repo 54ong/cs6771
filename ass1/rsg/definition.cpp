@@ -1,8 +1,6 @@
 /**
- * Provides the implementation of
- * the Definition class, which is really
- * nothing more than an ordered pair: a nonterminal
- * attached to a string.
+ * Provides the implementation of the Definition class, which is really
+ * nothing more than an ordered pair: a nonterminal attached to a string.
  */ 
  
 #include "definition.h"
@@ -11,20 +9,21 @@
 /**
  * Constructor: Definition
  * -----------------------
- * Constructs an instance of a Definition object
- * based on the content of the specified file.
+ * Constructs an instance of a Definition object based on the content of the specified file.
  */
 
 Definition::Definition(ifstream& infile)
 {
    // your code here
+	Production expension = new Production(infile);
+	this->nonterminal = "";
+	this->possibleExpansions = expension;
 }
 
 /**
  * Method: getRandomProduction
  * ---------------------------
- * Returns a const reference to one of the
- * embedded Productions.
+ * Returns a const reference to one of the embedded Productions.
  */
 
 const Production& Definition::getRandomProduction() const

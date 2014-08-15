@@ -10,8 +10,7 @@
 /**
  * Constructor Implementation: Production
  * --------------------------------------
- * Constructor that initializes the Production based
- * on the content of a file.
+ * Constructor that initializes the Production based on the content of a file.
  */
 
 Production::Production(ifstream& infile)
