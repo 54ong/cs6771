@@ -8,6 +8,7 @@
 #include <map>
 #include <fstream>
 #include <cstdlib>
+#include <vector>
 #include "definition.h"
 #include "production.h"
 
@@ -29,30 +30,17 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 	string str;
 
 	while (infile >> str) {
+		// skip all junks before the first CFG
+//		cout << str << endl;
 		if (str == "{") {
-			infile >> str;
-			break;
+			//infile >> str;
+
+			cout << str << endl;
+
+			Definition def(infile);
+			grammar.insert(pair<string, Definition>(str, def));
 		}
 	}
-
-	Definition def(infile);
-	grammar.insert(str,)
-
-	cout << str << endl;
-
-	if (str == "<start>") {
-//		cout << str << endl;
-//		while ((infile >> str) != "}") {
-//			Definition def()
-//		}
-	}
-
-//	cout << str << endl;
-
-//	Definition def(infile);
-//	while(infile >> str) {
-//		cout << str << " ";
-//	}
 
 }
 
@@ -88,7 +76,6 @@ int main(int argc, char *argv[]) {
 	if (argc == 1) {
 		cerr << "You need to specify the name of a grammar file." << endl;
 		cerr << "Usage: rsg <path to grammar text file>" << endl;
-
 		return EXIT_FAILURE;
 	}
 

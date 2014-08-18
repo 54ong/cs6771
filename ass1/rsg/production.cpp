@@ -16,4 +16,6 @@
 Production::Production(ifstream& infile)
 {
    // your code here
+	string str;
+	infile >> str;
 }

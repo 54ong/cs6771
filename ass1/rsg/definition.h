@@ -43,8 +43,8 @@ public:
 	 * ----------------------
 	 * Returns a constant reference to the embedded nonterminal.
 	 *
-	 * @return an immutable reference to a string,
-	 *         which stores the nonterminal string.
+	 * @return an immutable reference to a string, which stores the nonterminal string.
+	 *
 	 */
 
 	const string& getNonterminal() const {
