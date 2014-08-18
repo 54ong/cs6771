@@ -16,7 +16,7 @@ Definition::Definition(ifstream& infile) {
 	// your code here
 	string str;
 	infile >> str;
-	cout << str << endl;
+//	cout << str << endl;
 	nonterminal = str;
 
 	while (str != "}") {
@@ -29,8 +29,7 @@ Definition::Definition(ifstream& infile) {
 			<< endl;
 	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
 			++it) {
-		for (auto iterator = it->iterator; iterator < it.end();
-				++iterator)
+		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
 			cout << *iterator << " ";
 		cout << endl;
 	}
