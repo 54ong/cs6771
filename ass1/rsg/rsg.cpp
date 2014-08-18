@@ -26,6 +26,34 @@ using namespace std;
 
 static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 
+	string str;
+
+	while (infile >> str) {
+		if (str == "{") {
+			infile >> str;
+			break;
+		}
+	}
+
+	Definition def(infile);
+	grammar.insert(str,)
+
+	cout << str << endl;
+
+	if (str == "<start>") {
+//		cout << str << endl;
+//		while ((infile >> str) != "}") {
+//			Definition def()
+//		}
+	}
+
+//	cout << str << endl;
+
+//	Definition def(infile);
+//	while(infile >> str) {
+//		cout << str << " ";
+//	}
+
 }
 
 /**

@@ -15,9 +15,12 @@
 Definition::Definition(ifstream& infile)
 {
    // your code here
-	Production expension = new Production(infile);
-	this->nonterminal = "";
-	this->possibleExpansions = expension;
+	string str;
+	infile >> str;
+	cout << endl << str << " ";
+//	Production expension = new Production(infile);
+//	this->nonterminal = "";
+//	this->possibleExpansions = expension;
 }
 
 /**

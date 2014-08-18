@@ -57,9 +57,8 @@ public:
 	 * Returns an immutable reference to one and exactly one of the Definition's expansions.
 	 * The Production is chosen at random.
 	 *
-	 * @return an immutable reference to a randomly selected
-	 *         Production held by the Definition.  It is assumed
-	 *         that the Definition has at least one Production.
+	 * @return  an immutable reference to a randomly selected Production held by the Definition.
+	 *          It is assumed that the Definition has at least one Production.
 	 */
 
 	const Production& getRandomProduction() const;
