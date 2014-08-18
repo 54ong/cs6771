@@ -20,15 +20,14 @@ Definition::Definition(ifstream& infile) {
 	nonterminal = str;
 
 	while (str != "}") {
-//		possibleExpansions = vector<Production>;
-//		possibleExpansions = new vector<Production>;
-		possibleExpansions.push_back(new Production<infile>);
+		Production prod(infile);
+		possibleExpansions.push_back(prod);
 	}
 
-//	cout << endl << str << " ";
-//	Production expension = new Production(infile);
-//	this->nonterminal = "";
-//	this->possibleExpansions = expension;
+	infile >> str;
+
+	cout << "non-terminal name: " << nonterminal << endl << "Productions: " << endl;
+
 }
 
 /**
