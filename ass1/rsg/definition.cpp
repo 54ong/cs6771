@@ -16,18 +16,24 @@ Definition::Definition(ifstream& infile) {
 	// your code here
 	string str;
 	infile >> str;
-
+	cout << str << endl;
 	nonterminal = str;
 
 	while (str != "}") {
 		Production prod(infile);
 		possibleExpansions.push_back(prod);
+		infile >> str;
 	}
 
-	infile >> str;
-
-	cout << "non-terminal name: " << nonterminal << endl << "Productions: " << endl;
-
+	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
+			<< endl;
+	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
+			++it) {
+		for (auto iterator = it->iterator; iterator < it.end();
+				++iterator)
+			cout << *iterator << " ";
+		cout << endl;
+	}
 }
 
 /**
