@@ -33,7 +33,7 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 		// skip all junks before the first CFG
 		//		cout << str << endl;
 		if (str == "{") {
-			//			cout << str << endl;
+			// cout << str << endl;
 			Definition def(infile);
 			grammar.insert(pair<string, Definition>(def.getNonterminal(), def));
 			infile >> str;

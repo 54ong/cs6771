@@ -16,9 +16,13 @@ Definition::Definition(ifstream& infile) {
 	// your code here
 	string str;
 	infile >> str;
-//	cout << str << endl;
 	nonterminal = str;
-
+	while (str != "}") {
+		// infile >> str;
+		Production prod(infile);
+		possibleExpansions.push_back(prod);
+		// infile >> str;
+	}
 //	while (infile >> str) {
 //	cout << str << endl;
 //	if (str != "}") {
@@ -28,12 +32,6 @@ Definition::Definition(ifstream& infile) {
 //		break;
 //	}
 //}
-	while (str != "}") {
-		Production prod(infile);
-		possibleExpansions.push_back(prod);
-		infile >> str;
-	}
-
 	cout << endl;
 	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
 			<< endl;
