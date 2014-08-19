@@ -22,7 +22,4 @@ Production::Production(ifstream& infile) {
 		}
 		phrases.push_back(str);
 	}
-//	for (auto iterator = phrases.begin(); iterator < phrases.end(); ++iterator)
-//		cout << *iterator << " ";
-//	cout << endl;
 }

@@ -34,7 +34,6 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 		if (str == "{") {
 			Definition def(infile);
 			grammar.insert(pair<string, Definition>(def.getNonterminal(), def));
-			infile >> str;
 		}
 	}
 
