@@ -18,7 +18,7 @@ Production::Production(ifstream& infile) {
 	string str;
 	while (infile >> str) {
 		if (str == ";") {
-			infile >> str;
+//			infile >> str;
 			break;
 		}
 		phrases.push_back(str);

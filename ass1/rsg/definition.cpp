@@ -19,12 +19,22 @@ Definition::Definition(ifstream& infile) {
 //	cout << str << endl;
 	nonterminal = str;
 
+//	while (infile >> str) {
+//	cout << str << endl;
+//	if (str != "}") {
+//		Production prod(infile);
+//		possibleExpansions.push_back(prod);
+//	} else {
+//		break;
+//	}
+//}
 	while (str != "}") {
 		Production prod(infile);
 		possibleExpansions.push_back(prod);
 		infile >> str;
 	}
 
+	cout << endl;
 	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
 			<< endl;
 	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
