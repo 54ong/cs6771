@@ -1,9 +1,9 @@
 The poem grammar. This is the same simple grammar discussed in the deliverable spec.  It is a good one to test one since it is so small.
 
-
+{
 <start>
 The   <object>   <verb>   tonight.	;
-
+}
 
 There can be any amount of white space in between the words in a production and before and after the terminating semi-colon.  Be sure you skip over extra white space.
 

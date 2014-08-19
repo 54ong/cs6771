@@ -18,20 +18,17 @@ Definition::Definition(ifstream& infile) {
 	infile >> str;
 	nonterminal = str;
 	while (str != "}") {
-		// infile >> str;
-		Production prod(infile);
+		vector<string> words;
+		while (infile >> str) {
+			if (str != ";") {
+				words.push_back(str);
+			} else
+				break;
+		}
+		Production prod(words);
 		possibleExpansions.push_back(prod);
-		// infile >> str;
 	}
-//	while (infile >> str) {
-//	cout << str << endl;
-//	if (str != "}") {
-//		Production prod(infile);
-//		possibleExpansions.push_back(prod);
-//	} else {
-//		break;
-//	}
-//}
+
 	cout << endl;
 	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
 			<< endl;

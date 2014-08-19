@@ -30,10 +30,8 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 	string str;
 
 	while (infile >> str) {
-		// skip all junks before the first CFG
-		//		cout << str << endl;
+		// skip all junks before the CFG
 		if (str == "{") {
-			// cout << str << endl;
 			Definition def(infile);
 			grammar.insert(pair<string, Definition>(def.getNonterminal(), def));
 			infile >> str;
