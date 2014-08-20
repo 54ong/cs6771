@@ -71,12 +71,10 @@ static void generateRandomSentences(const map<string, Definition>& grammar,
 
 static Definition& findDefinition(const map<string, Definition>& grammar,
 		string name) {
-	std::map::iterator iter = grammar.find(name);
-	Definition def = *iter;
-	return def;
+	std::map::iterator iter = grammar.at(name);
+	return iter->second;
 }
-static string expendProduction(Production& production,
-		const map<string, Definition>& grammar,);
+
 static string expendProduction(Production& production,
 		const map<string, Definition>& grammar,) {
 	for (auto iterator = production.begin(); iterator < production.end();
@@ -86,11 +84,11 @@ static string expendProduction(Production& production,
 			cout << str << " ";
 		} else {
 			Definition def = findDefinition(grammar, str);
-			expendProduction(def.getRandomProduction(), grammar);
+//			expendProduction(def.getRandomProduction(), grammar);
 		}
 
 	}
-	return "";
+	return " ";
 }
 
 /**
