@@ -52,27 +52,45 @@ static void generateRandomSentences(const map<string, Definition>& grammar,
 		int numSentencesNeeded) {
 	for (int i = 0; i < numSentencesNeeded; ++i) {
 		Definition defin = grammar.at("<start>");
+
 		Production prod = defin.getRandomProduction();
 		for (auto iterator = prod.begin(); iterator < prod.end(); ++iterator) {
 
 		}
-
 	}
-
 	//	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
 	//			<< endl;
-//	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
-//			++it) {
-//		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
-//			cout << *iterator << " ";
-//		cout << endl;
-//	}
+	//	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
+	//			++it) {
+	//		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
+	//			cout << *iterator << " ";
+	//		cout << endl;
+	//	}
 	//	cout << endl;
 }
 
 static Definition& findDefinition(const map<string, Definition>& grammar,
 		string name) {
-	return grammar.find(name);
+	std::map::iterator iter = grammar.find(name);
+	Definition def = *iter;
+	return def;
+}
+static string expendProduction(Production& production,
+		const map<string, Definition>& grammar,);
+static string expendProduction(Production& production,
+		const map<string, Definition>& grammar,) {
+	for (auto iterator = production.begin(); iterator < production.end();
+			++iterator) {
+		string str = *iterator;
+		if (str.find('<') == std::string::npos) {
+			cout << str << " ";
+		} else {
+			Definition def = findDefinition(grammar, str);
+			expendProduction(def.getRandomProduction(), grammar);
+		}
+
+	}
+	return "";
 }
 
 /**
