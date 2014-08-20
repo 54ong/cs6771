@@ -13,11 +13,12 @@
  */
 
 Definition::Definition(ifstream& infile) {
-	// your code here
 	string str;
 	infile >> str;
 	nonterminal = str;
 	infile >> str;
+	// here I use a less-OO way to initialize Production, a better way is to
+	// init it using Production(ifstream& infile) constructor
 	while (str != "}") {
 		vector<string> words;
 		while (str != ";") {
@@ -30,15 +31,15 @@ Definition::Definition(ifstream& infile) {
 		possibleExpansions.push_back(prod);
 	}
 
-	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
-			<< endl;
-	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
-			++it) {
-		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
-			cout << *iterator << " ";
-		cout << endl;
-	}
-	cout << endl;
+//	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
+//			<< endl;
+//	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
+//			++it) {
+//		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
+//			cout << *iterator << " ";
+//		cout << endl;
+//	}
+//	cout << endl;
 }
 
 /**
@@ -48,6 +49,9 @@ Definition::Definition(ifstream& infile) {
  */
 
 const Production& Definition::getRandomProduction() const {
-	// your code here
-	return *(new Production()); // bogus
+
+	RandomGenerator rand = RandomGenerator();
+	int i = rand.getRandomInteger(0, possibleExpansions.size() - 1);
+	return possibleExpansions[i];
+//	return *(new Production()); // bogus
 }

@@ -36,7 +36,6 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 			grammar.insert(pair<string, Definition>(def.getNonterminal(), def));
 		}
 	}
-
 }
 
 /**
@@ -51,7 +50,29 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 
 static void generateRandomSentences(const map<string, Definition>& grammar,
 		int numSentencesNeeded) {
+	for (int i = 0; i < numSentencesNeeded; ++i) {
+		Definition defin = grammar.at("<start>");
+		Production prod = defin.getRandomProduction();
+		for (auto iterator = prod.begin(); iterator < prod.end(); ++iterator) {
 
+		}
+
+	}
+
+	//	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
+	//			<< endl;
+//	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
+//			++it) {
+//		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
+//			cout << *iterator << " ";
+//		cout << endl;
+//	}
+	//	cout << endl;
+}
+
+static Definition& findDefinition(const map<string, Definition>& grammar,
+		string name) {
+	return grammar.find(name);
 }
 
 /**
@@ -81,7 +102,7 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	// things are looking good...
+// things are looking good...
 	map<string, Definition> grammar;
 	readGrammar(grammarFile, grammar);
 	generateRandomSentences(grammar, 3);
