@@ -69,27 +69,28 @@ static void generateRandomSentences(const map<string, Definition>& grammar,
 	//	cout << endl;
 }
 
-static Definition& findDefinition(const map<string, Definition>& grammar,
-		string name) {
-	std::map::iterator iter = grammar.at(name);
-	return iter->second;
+static Definition& findDefinition(string name,
+		const map<string, Definition>& grammar) {
+	std::map<string, Definition>::const_iterator iter = grammar.find(name);
+	Definition& def = iter->second;
+	return def;
 }
 
-static string expendProduction(Production& production,
-		const map<string, Definition>& grammar,) {
-	for (auto iterator = production.begin(); iterator < production.end();
-			++iterator) {
-		string str = *iterator;
-		if (str.find('<') == std::string::npos) {
-			cout << str << " ";
-		} else {
-			Definition def = findDefinition(grammar, str);
-//			expendProduction(def.getRandomProduction(), grammar);
-		}
-
-	}
-	return " ";
-}
+//static string expendProduction(Production& production,
+//		const map<string, Definition>& grammar) {
+//	for (auto iterator = production.begin(); iterator < production.end();
+//			++iterator) {
+//		string str = *iterator;
+//		if (str.find('<') == std::string::npos) {
+//			cout << str << " ";
+//		} else {
+////			Definition def = findDefinition(grammar, str);
+////			expendProduction(def.getRandomProduction(), grammar);
+//		}
+//
+//	}
+//	return " ";
+//}
 
 /**
  * Performs the rudimentary error checking needed to confirm that
