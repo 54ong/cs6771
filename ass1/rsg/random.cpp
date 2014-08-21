@@ -35,5 +35,6 @@ int RandomGenerator::getRandomInteger(int low, int high)
   double percent = (rand() / (static_cast<double>(RAND_MAX) + 1));
   assert(percent >= 0.0 && percent < 1.0); 
   int offset = static_cast<int>(percent * (high - low + 1));
-  return low + offset;
+  int t = low + offset;
+  return t;
 }

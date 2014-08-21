@@ -31,15 +31,15 @@ Definition::Definition(ifstream& infile) {
 		possibleExpansions.push_back(prod);
 	}
 
-//	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
-//			<< endl;
-//	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
-//			++it) {
-//		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
-//			cout << *iterator << " ";
-//		cout << endl;
-//	}
-//	cout << endl;
+	//	cout << "non-terminal name: " << nonterminal << endl << "Productions: "
+	//			<< endl;
+	//	for (auto it = possibleExpansions.begin(); it < possibleExpansions.end();
+	//			++it) {
+	//		for (auto iterator = it->begin(); iterator < it->end(); ++iterator)
+	//			cout << *iterator << " ";
+	//		cout << endl;
+	//	}
+	//	cout << endl;
 }
 
 /**
@@ -51,7 +51,8 @@ Definition::Definition(ifstream& infile) {
 const Production& Definition::getRandomProduction() const {
 
 	RandomGenerator rand = RandomGenerator();
-	int i = rand.getRandomInteger(0, possibleExpansions.size() - 1);
-	return possibleExpansions[i];
+	int t = possibleExpansions.size();
+	int i = rand.getRandomInteger(0, t - 1);
+	return possibleExpansions.at(i);
 //	return *(new Production()); // bogus
 }
