@@ -1,7 +1,7 @@
 /*
  * File: WordLadder.cpp
  * --------------------
- * Name: [TODO: enter name here]
+ * Name: [Andrew WU]
  * This file is the starter project for the word ladder problem on Assignment #1.
  */
 
@@ -13,6 +13,10 @@
 
 int main() {
 
-	// [TODO: fill in the code]
+	cout << "test" << endl;
+	Lexicon lexicon("EnglishWords.dat");
+
+	cout << lexicon.size() << endl;
+
 	return 0;
 }

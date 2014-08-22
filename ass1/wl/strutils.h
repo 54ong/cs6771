@@ -2,10 +2,8 @@
  * File: strutils.h
  * Last modified on Wed Sep 18 13:37:55 2002 by zelenski
  * -----------------------------------------------------
- * The strutils.h file defines some useful helper functions
- * not included by the C++ string library. These were taken
- * from Eric Roberts's original strlib from his text
- * _The Art and Science of C_.
+ * The strutils.h file defines some useful helper functions not included by the C++ string library.
+ * These were taken from Eric Roberts's original strlib from his text_The Art and Science of C_.
  */
 
 #ifndef _strutils_h

@@ -128,9 +128,9 @@ void Lexicon::addWordsFromFile(string filename)
 
     istr.read(firstFour, 4);
     if (strncmp(firstFour, expected, 4) == 0) {
-	//cout << "about to readBinaryFile" << endl;
+	// cout << "about to readBinaryFile" << endl;
 	readBinaryFile(filename);
-	//cout << "done" << endl;
+	// cout << "done" << endl;
 	return;
     }
 

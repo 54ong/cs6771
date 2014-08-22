@@ -1,8 +1,7 @@
 /* File : strutils.cpp
  * Last modified September 2011
  * -----------------------------------
- * Invalid conversions raise an ErrorException, 
- * which can be caught and handled by students
+ * Invalid conversions raise an ErrorException, which can be caught and handled by students
  */
 
 

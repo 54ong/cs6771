@@ -1,10 +1,9 @@
 /*
  * File: genlib.h
  * -----------------------------------------------------
- * This header file is iincluded in Assignment 1 to provide a few
- * common definitions. Note this header has a "using namespace std"
- * clause. If a file includes this header, it can then use
- * features from the std namespace without qualifying by scope.
+ * This header file is iincluded in Assignment 1 to provide a few common definitions.
+ * Note this header has a "using namespace std" clause. If a file includes this header,
+ * it can then use features from the std namespace without qualifying by scope.
  *
  */
 
@@ -18,9 +17,8 @@ using namespace std;
 /*
  * Class: ErrorException
  * ---------------------
- * This exception is raised by calls to the Error function, which
- * makes it possible for clients to respond to error conditions
- * without having their programs bomb completely.
+ * This exception is raised by calls to the Error function, which makes it possible for
+ * clients to respond to error conditions without having their programs bomb completely.
  */
 
 class ErrorException : public exception {
