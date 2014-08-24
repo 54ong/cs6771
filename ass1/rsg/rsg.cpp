@@ -38,13 +38,6 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 	}
 }
 
-//static const Definition& findDefinition(string name,
-//		const map<string, Definition>& grammar) {
-//	std::map<string, Definition>::const_iterator iter = grammar.find(name);
-//	const Definition& def = iter->second;
-//	return def;
-//}
-
 static void expendProduction(Production& production,
 		const map<string, Definition>& grammar) {
 

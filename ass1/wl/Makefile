@@ -2,7 +2,7 @@
 ## Makefile for WordLadder
 ##
 
-CPPFLAGS = -g3 -Wall -Werror -O2 -std=c++11
+CPPFLAGS = -g -Wall -Werror -O2 -std=c++11
 
 CXX=g++
 LDFLAGS = 
