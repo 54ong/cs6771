@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string>
 
-
 using namespace std;
 
 // Global variables
@@ -80,7 +79,7 @@ void searchWord(string startWord, string destWord, Lexicon & lexicon) {
 		string word = *(currWords.rbegin());
 		searchQueue.pop();
 
-		if (isLadderFound && currWords.size() >= shortestLadderLength)
+		if (isLadderFound && (int) currWords.size() >= shortestLadderLength)
 			break;
 
 		// search one-hop words from the last of the currWords vector
@@ -93,7 +92,7 @@ void searchWord(string startWord, string destWord, Lexicon & lexicon) {
 			searchQueue.push(newWords);
 		}
 
-		if (previousDepth < currWords.size()) {
+		if (previousDepth < (int) currWords.size()) {
 			for (auto iterator = wordsInCurrentDepth.begin();
 					iterator != wordsInCurrentDepth.end(); ++iterator)
 				wordSet.insert(*iterator);
@@ -119,7 +118,7 @@ vector<string> findOneHopWords(string orignWord, string destWord,
 
 	vector<string> oneHopWords;
 
-	for (int i = 0; i < orignWord.size(); ++i) {
+	for (int i = 0; i < (int) orignWord.length(); ++i) {
 		char tmp = orignWord[i];
 		string w = orignWord;
 
