@@ -4,21 +4,29 @@
  * Name: [Andrew WU]
  * This file is the starter project for the word ladder problem on Assignment #1.
  */
-
 #include "genlib.h"
 #include "lexicon.h"
 #include <queue>
 #include <vector>
+#include <list>
 #include <iostream>
 #include <stdlib.h>
 #include <string>
 
+
 using namespace std;
 
 // Global variables
-set<string> wordFounded;
-bool isFindShortest = false;
+set<string> wordSet;						// Store all unique words found
+vector<string> wordsInCurrentDepth;	// Store all words found under current depth
+list<string> ladderList;
+bool isLadderFound = false;
 int shortestLadderLength = 0;
+
+// Function declaration
+void searchWord(string startWord, string destWord, Lexicon & lexicon);
+vector<string> findOneHopWords(string orignWord, string destWord,
+		Lexicon & lexicon);
 
 int main() {
 
@@ -41,6 +49,15 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
+	searchWord(startWord, destWord, lexicon);
+
+	if (isLadderFound) {
+		cout << "Found ladder: ";
+
+	} else {
+		cout << "No ladder found." << endl;
+	}
+
 	return EXIT_SUCCESS;
 }
 
@@ -50,67 +67,79 @@ int main() {
  * @param	destWord
  * @param	lexicon
  */
-void searchWord(string startWord, string destWord, const Lexicon & lexicon) {
+void searchWord(string startWord, string destWord, Lexicon & lexicon) {
 
-	vector<string> vec { startWord };
-	queue<vector<string>> wordQueue;
+	int previousDepth = 1;
+	queue<vector<string>> searchQueue;
 
-	wordQueue.push(vec);
-	wordFounded.insert(startWord);
+	searchQueue.push( { startWord });
+	wordSet.insert(startWord);
 
-	bool isFindWord = false;
-	bool isFindNewWord = false;
-	int ladderSize = 0;
-	int searchDepth = 1;
+	while (!searchQueue.empty()) {
+		vector<string> currWords = searchQueue.front();
+		string word = *(currWords.rbegin());
+		searchQueue.pop();
 
-	while (!wordQueue.empty()) {
-		vector<string> currWords = wordQueue.front();
-		wordQueue.pop();
-
-		/* Result ladders have been found in the previous level, stop further search. */
-		if (isFindWord && currWords.size() >= ladderSize)
+		if (isLadderFound && currWords.size() >= shortestLadderLength)
 			break;
 
-		/* It's going one level deeper, append the inUse with inUseCurLvl. */
-//		if (searchDepth < currWords.size()) {
-//			for (auto it = inUseCurLvl.begin(); it != inUseCurLvl.end(); ++it)
-//				inUse.add(*it);
-//			inUseCurLvl.clear();
-//			++searchDepth;
-//		}
+		// search one-hop words from the last of the currWords vector
+		vector<string> oneHopWords = findOneHopWords(word, destWord, lexicon);
+		for (auto iterator = oneHopWords.begin(); iterator < oneHopWords.end();
+				++iterator) {
+			vector<string> newWords = currWords;
+			newWords.push_back(*iterator);
+			// expend the
+			searchQueue.push(newWords);
+		}
+
+		if (previousDepth < currWords.size()) {
+			for (auto iterator = wordsInCurrentDepth.begin();
+					iterator != wordsInCurrentDepth.end(); ++iterator)
+				wordSet.insert(*iterator);
+//			wordsInCurrentDepth.clear();
+			++previousDepth;
+		}
+
 	}
+
 }
 
 /**
  *
+ * Find all one-hop words from given word
+ *
+ * @param	lexicon
+ * @param	ladder
+ * @param	destWord
+ *
  */
-vector<string> findOneHopWords(const Lexicon & lexicon, vector<string> & ladder,
-		string destWord) {
-	string word = ladder.back();
-	vector<string> oneHopWords;
-	vector<string> vc;
-	vc.push_back(destWord);
+vector<string> findOneHopWords(string orignWord, string destWord,
+		Lexicon & lexicon) {
 
-	for (int i = 0; i < word.size(); ++i) {
-		char tmp = word[i];
+	vector<string> oneHopWords;
+
+	for (int i = 0; i < orignWord.size(); ++i) {
+		char tmp = orignWord[i];
+		string w = orignWord;
+
 		for (char c = 'a'; c <= 'z'; ++c) {
 			if (tmp == c)
 				continue;
-			word[i] = c;
 
-			if (lexicon.containsWord(word)
-					&& wordFounded.find(word) != wordFounded.end()) {
-//				vector<string> newLadder = ladder;
-//				newLadder.push_back(word);
-				oneHopWords.push_back(word);
-				if (word == destWord) {
-					oneHopWords.push_back(word);
-					isFindShortest = true;
-					shortestLadderLength = ladder.size() + 1;
-					return vc;
+			w[i] = c;
+			// find a new word that exist in the lexicon
+			if (lexicon.containsWord(w) && wordSet.find(w) == wordSet.end()) {
+				wordsInCurrentDepth.push_back(w);
+				oneHopWords.push_back(w);
+
+				// matches destWord, stop and return
+				if (w == destWord) {
+					isLadderFound = true;
+//					shortestLadderLength = ladder.size() + 1;
+					return oneHopWords;
 				}
 			}
-
 		}
 	}
 	return oneHopWords;
