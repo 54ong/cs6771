@@ -43,12 +43,10 @@ static void expendProduction(Production& production, const map<string, Definitio
 	for (auto iter = production.begin(); iter < production.end(); ++iter) {
 		string str = *iter;
 
-//		if (str.find('<') == std::string::npos) {
-		if (str[0] != '<') {
+		if (str.find('<') == std::string::npos) {
 			cout << str << " ";
 		} else {
-//			Definition def = grammar.at(str);
-			Definition def = grammar.find(str)->second;
+			Definition def = grammar.at(str);
 			Production prod = def.getRandomProduction();
 			expendProduction(prod, grammar);
 		}
