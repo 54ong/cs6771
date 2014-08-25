@@ -24,8 +24,7 @@ int shortestLadderLength = 0;
 
 // Function declaration
 void searchWord(string startWord, string destWord, Lexicon & lexicon);
-vector<string> findOneHopWords(string orignWord, string destWord,
-		Lexicon & lexicon);
+vector<string> findOneHopWords(vector<string>, string, Lexicon & lexicon);
 
 int main() {
 
@@ -76,14 +75,14 @@ void searchWord(string startWord, string destWord, Lexicon & lexicon) {
 
 	while (!searchQueue.empty()) {
 		vector<string> currWords = searchQueue.front();
-		string word = *(currWords.rbegin());
+//		string word = *(currWords.rbegin());
 		searchQueue.pop();
 
 		if (isLadderFound && (int) currWords.size() >= shortestLadderLength)
 			break;
 
 		// search one-hop words from the last of the currWords vector
-		vector<string> oneHopWords = findOneHopWords(word, destWord, lexicon);
+		vector<string> oneHopWords = findOneHopWords(currWords, destWord, lexicon);
 		for (auto iterator = oneHopWords.begin(); iterator < oneHopWords.end();
 				++iterator) {
 			vector<string> newWords = currWords;
@@ -113,11 +112,11 @@ void searchWord(string startWord, string destWord, Lexicon & lexicon) {
  * @param	destWord
  *
  */
-vector<string> findOneHopWords(string orignWord, string destWord,
+vector<string> findOneHopWords(vector<string> ladders, string destWord,
 		Lexicon & lexicon) {
 
 	vector<string> oneHopWords;
-
+	string orignWord = ladders.back();
 	for (int i = 0; i < (int) orignWord.length(); ++i) {
 		char tmp = orignWord[i];
 		string w = orignWord;
@@ -135,7 +134,10 @@ vector<string> findOneHopWords(string orignWord, string destWord,
 				// matches destWord, stop and return
 				if (w == destWord) {
 					isLadderFound = true;
-//					shortestLadderLength = ladder.size() + 1;
+//					vector<string> res = ladders;
+//					res.push_back(w);
+//					ladderList.push_back(res);
+					shortestLadderLength = (int) ladders.size() + 1;
 					return oneHopWords;
 				}
 			}
