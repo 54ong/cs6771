@@ -50,13 +50,8 @@ Definition::Definition(ifstream& infile) {
 
 const Production& Definition::getRandomProduction() const {
 
-	RandomGenerator rand = RandomGenerator();
+	static RandomGenerator rand = RandomGenerator();
 	int t = possibleExpansions.size();
-	int i = rand.getRandomInteger(0, (t - 1));
-//	cout << "random num: " << i << endl;
-	auto iter = possibleExpansions.begin();
-	iter += i;
-	return *iter;
-//	return possibleExpansions.at(i);
+	return possibleExpansions.at(rand.getRandomInteger(0, (t - 1)));
 //	return *(new Production()); // bogus
 }

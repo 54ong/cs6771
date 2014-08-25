@@ -38,17 +38,17 @@ static void readGrammar(ifstream& infile, map<string, Definition>& grammar) {
 	}
 }
 
-static void expendProduction(Production& production,
-		const map<string, Definition>& grammar) {
+static void expendProduction(Production& production, const map<string, Definition>& grammar) {
 
-	for (auto iterator = production.begin(); iterator < production.end();
-			++iterator) {
-		string str = *iterator;
+	for (auto iter = production.begin(); iter < production.end(); ++iter) {
+		string str = *iter;
 
-		if (str.find('<') == std::string::npos) {
+//		if (str.find('<') == std::string::npos) {
+		if (str[0] != '<') {
 			cout << str << " ";
 		} else {
-			Definition def = grammar.at(str);
+//			Definition def = grammar.at(str);
+			Definition def = grammar.find(str)->second;
 			Production prod = def.getRandomProduction();
 			expendProduction(prod, grammar);
 		}
