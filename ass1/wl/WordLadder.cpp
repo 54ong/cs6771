@@ -32,9 +32,9 @@ int main() {
 
 	string startWord, destWord;
 
-	cout << "Enter start word (RETURN to quit): " << endl;
+	cout << "Enter start word (RETURN to quit): ";
 	cin >> startWord;
-	cout << "Enter destination word: " << endl;
+	cout << "Enter destination word: ";
 	cin >> destWord;
 
 	transform(startWord.begin(), startWord.end(), startWord.begin(), ::tolower);
