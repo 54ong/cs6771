@@ -52,8 +52,11 @@ const Production& Definition::getRandomProduction() const {
 
 	RandomGenerator rand = RandomGenerator();
 	int t = possibleExpansions.size();
-	int i = rand.getRandomInteger(0, t - 1);
+	int i = rand.getRandomInteger(0, (t - 1));
 //	cout << "random num: " << i << endl;
-	return possibleExpansions.at(i);
+	auto iter = possibleExpansions.begin();
+	iter += i;
+	return *iter;
+//	return possibleExpansions.at(i);
 //	return *(new Production()); // bogus
 }
