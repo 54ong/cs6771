@@ -4,6 +4,7 @@
  * Name: [Andrew WU]
  * This file is the starter project for the word ladder problem on Assignment #1.
  */
+
 #include "genlib.h"
 #include "lexicon.h"
 #include <queue>
@@ -12,6 +13,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -35,6 +37,9 @@ int main() {
 	cout << "Enter destination word: " << endl;
 	cin >> destWord;
 
+	transform(startWord.begin(), startWord.end(), startWord.begin(), ::tolower);
+	transform(destWord.begin(), destWord.end(), destWord.begin(), ::tolower);
+
 	if (startWord.length() != destWord.length()) {
 		cout << "No ladder found." << endl;
 		return EXIT_FAILURE;
@@ -51,6 +56,9 @@ int main() {
 
 	if (isLadderFound) {
 		cout << "Found ladder: ";
+		ladderList.sort();
+		for (auto iter = ladderList.begin(); iter != ladderList.end(); ++iter)
+			cout << *iter << endl;
 
 	} else {
 		cout << "No ladder found." << endl;
@@ -68,37 +76,34 @@ int main() {
 void searchWord(string startWord, string destWord, Lexicon & lexicon) {
 
 	int previousDepth = 1;
-	queue<vector<string>> searchQueue;
 
+	queue<vector<string>> searchQueue;
 	searchQueue.push( { startWord });
-	wordSet.insert(startWord);
+//	wordSet.insert(startWord);
 
 	while (!searchQueue.empty()) {
 		vector<string> currWords = searchQueue.front();
-//		string word = *(currWords.rbegin());
 		searchQueue.pop();
 
 		if (isLadderFound && (int) currWords.size() >= shortestLadderLength)
 			break;
 
-		// search one-hop words from the last of the currWords vector
-		vector<string> oneHopWords = findOneHopWords(currWords, destWord, lexicon);
-		for (auto iterator = oneHopWords.begin(); iterator < oneHopWords.end();
-				++iterator) {
-			vector<string> newWords = currWords;
-			newWords.push_back(*iterator);
-			// expend the
-			searchQueue.push(newWords);
-		}
-
 		if (previousDepth < (int) currWords.size()) {
-			for (auto iterator = wordsInCurrentDepth.begin();
-					iterator != wordsInCurrentDepth.end(); ++iterator)
-				wordSet.insert(*iterator);
-//			wordsInCurrentDepth.clear();
+			for (auto iter = wordsInCurrentDepth.begin(); iter != wordsInCurrentDepth.end();
+					++iter) {
+				wordSet.insert(*iter);
+			}
+			wordsInCurrentDepth.clear();
 			++previousDepth;
 		}
 
+		// search one-hop words from the last of the currWords vector
+		vector<string> oneHopWords = findOneHopWords(currWords, destWord, lexicon);
+		for (auto iter = oneHopWords.begin(); iter != oneHopWords.end(); ++iter) {
+			vector<string> newWords = currWords;
+			newWords.push_back(*iter);
+			searchQueue.push(newWords);
+		}
 	}
 
 }
@@ -112,11 +117,10 @@ void searchWord(string startWord, string destWord, Lexicon & lexicon) {
  * @param	destWord
  *
  */
-vector<string> findOneHopWords(vector<string> ladders, string destWord,
-		Lexicon & lexicon) {
+vector<string> findOneHopWords(vector<string> currWords, string destWord, Lexicon & lexicon) {
 
 	vector<string> oneHopWords;
-	string orignWord = ladders.back();
+	string orignWord = currWords.back();
 	for (int i = 0; i < (int) orignWord.length(); ++i) {
 		char tmp = orignWord[i];
 		string w = orignWord;
@@ -124,22 +128,21 @@ vector<string> findOneHopWords(vector<string> ladders, string destWord,
 		for (char c = 'a'; c <= 'z'; ++c) {
 			if (tmp == c)
 				continue;
-
 			w[i] = c;
-			// find a new word that exist in the lexicon
+			// find new word that exist in the lexicon
 			if (lexicon.containsWord(w) && wordSet.find(w) == wordSet.end()) {
-				wordsInCurrentDepth.push_back(w);
 				oneHopWords.push_back(w);
-
-				// matches destWord, stop and return
 				if (w == destWord) {
 					isLadderFound = true;
-//					vector<string> res = ladders;
-//					res.push_back(w);
-//					ladderList.push_back(res);
-					shortestLadderLength = (int) ladders.size() + 1;
-					return oneHopWords;
+					string str;
+					for (auto iter = currWords.begin(); iter != currWords.end(); ++iter)
+						str += *iter + " ";
+					str += w;
+					ladderList.push_back(str);
+					shortestLadderLength = (int) currWords.size() + 1;
+					break;
 				}
+				wordsInCurrentDepth.push_back(w);
 			}
 		}
 	}
