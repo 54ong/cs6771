@@ -12,20 +12,8 @@ using namespace std;
  *
  *************************************************************/
 
-SMatrix::SMatrix(size_type size) {
-	int tmp = 0;
-	if (size * size % 5) {
-		tmp = size * size / 5 + 1;
-	} else {
-		tmp = size * size / 5;
-	}
-	arr_size = min(tmp, 1000);
-	row_num = size;
-	column_num = size;
-	vals_ = new int[arr_size];
-	cidx_ = new size_type[arr_size];
-	iter_row = 0;
-	iter_column = 0;
+SMatrix::SMatrix(size_type size) :
+		SMatrix(size, size) {
 }
 
 SMatrix::SMatrix(size_type row, size_type column) {
@@ -48,8 +36,8 @@ SMatrix::SMatrix(std::istream& is) {
 
 }
 
+// copy constructor
 SMatrix::SMatrix(const SMatrix& matrix) {
-	// copy
 	arr_size = matrix.arr_size;
 	row_num = matrix.row_num;
 	column_num = matrix.column_num;
@@ -58,12 +46,14 @@ SMatrix::SMatrix(const SMatrix& matrix) {
 	iter_row = matrix.iter_row;
 	iter_column = matrix.iter_column;
 
-	memcpy(vals_, matrix.vals_, sizeof(int) * matrix.arr_size);
-	memcpy(cidx_, matrix.cidx_, sizeof(int) * matrix.arr_size);
+	copy(matrix.vals_, matrix.vals_+ mar);
+	copy(cidx_, matrix.cidx_, sizeof(int) * matrix.arr_size);
 }
 
-SMatrix::SMatrix(SMatrix&& matrix) {
-	// move
+// move constructor
+SMatrix::SMatrix(SMatrix&& matrix) :
+		vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(std::move(matrix.ridx_)) , arr_size(matrix.arr_size), row_num(
+				matrix.row_num), column_num(matrix.column_num), iter_row(0), iter_column(0) {
 	arr_size = matrix.arr_size;
 	ridx_ = matrix.ridx_;
 	row_num = matrix.row_num;
@@ -78,9 +68,8 @@ SMatrix::SMatrix(SMatrix&& matrix) {
 	matrix.~SMatrix();
 }
 
-SMatrix::SMatrix(
-		const std::initializer_list<std::initializer_list<int>>& list) {
-	// initializer_list
+// initializer_list
+SMatrix::SMatrix(const std::initializer_list<std::initializer_list<int>>& list) {
 
 }
 
@@ -157,15 +146,13 @@ SMatrix& SMatrix::operator*=(const SMatrix& matrix) throw (MatrixError) {
 	return *this;
 }
 
-int SMatrix::operator()(size_type row, size_type column) const
-		throw (MatrixError) {
+int SMatrix::operator()(size_type row, size_type column) const throw (MatrixError) {
 	if (rows() < row || column_num < column)
 		throw MatrixError("Row/Column out of Matrix range");
 
 	auto iter = ridx_.find(row);
 	if (iter != ridx_.end()) {
-		for (auto i = iter->second.first;
-				i < iter->second.first + iter->second.second; ++i) {
+		for (auto i = iter->second.first; i < iter->second.first + iter->second.second; ++i) {
 			if (cidx_[i] == column)
 				return vals_[i];
 		}
@@ -173,8 +160,7 @@ int SMatrix::operator()(size_type row, size_type column) const
 	return 0;
 }
 
-bool SMatrix::setVal(size_type row, size_type column, int val)
-		throw (MatrixError) {
+bool SMatrix::setVal(size_type row, size_type column, int val) throw (MatrixError) {
 	return false;
 }
 
