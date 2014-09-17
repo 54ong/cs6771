@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
+#include <sstream>
 
 #include <cstddef>
 
@@ -74,6 +76,7 @@ public:
 	bool end() const;
 	void next() const;
 	int value() const;
+	int value(size_type, size_type) const;
 
 	// destructor
 	~SMatrix();
@@ -87,12 +90,18 @@ private:
 	size_type *cidx_;
 	std::map<size_type, std::pair<size_t, unsigned int> > ridx_;
 
-	int arr_size;
-	int row_num;
-	int column_num;
-	mutable size_type iter_row, iter_column;
+	int arr_size; 		// the size of vals_ and cidx_ array
+	int arr_used;		// array vals_, cidx_ used (number of non-zero entries)
+	int row_num;  		// total number of rows
+	int column_num; 	//total number of colums
+	mutable size_type iter_row;
+	mutable size_type iter_column;
 	// you may/should augment the private interface as required by your implementation
-
+	std::pair<std::pair<size_t, size_t>, int> parse_input(const std::string&);
+	bool is_element_exist(size_type, size_type) const;
+	bool is_insert_new_element(size_type, size_type, int);
+	bool is_remove_elemetn(size_type, size_type);
+	bool is_update_element(size_type, size_type, int);
 };
 
 #endif

@@ -24,6 +24,7 @@ SMatrix::SMatrix(size_type row, size_type column) {
 		tmp = row * column / 5;
 	}
 	arr_size = min(tmp, 1000);
+	arr_used = 0;
 	row_num = row;
 	column_num = column;
 	vals_ = new int[arr_size];
@@ -32,49 +33,102 @@ SMatrix::SMatrix(size_type row, size_type column) {
 	iter_column = 0;
 }
 
-SMatrix::SMatrix(std::istream& is) {
+SMatrix::SMatrix(std::istream &is) {
 
+	string str;
+	is >> str;
+	pair<pair<size_t, size_t>, int> p = parse_input(str);
+
+	int row = p.first.first;
+	int column = p.first.second;
+	int tmp = 0;
+	if (row * column % 5) {
+		tmp = row * column / 5 + 1;
+	} else {
+		tmp = row * column / 5;
+	}
+	arr_size = min(tmp, 1000);
+	arr_used = 0;
+	row_num = row;
+	column_num = column;
+	vals_ = new int[arr_size];
+	cidx_ = new size_type[arr_size];
+	iter_row = 0;
+	iter_column = 0;
+
+	while (is >> str) {
+		pair<pair<size_t, size_t>, int> sub = parse_input(str);
+		setVal(sub.first.first, sub.first.second, sub.second);
+	}
 }
 
 // copy constructor
-SMatrix::SMatrix(const SMatrix& matrix) {
+SMatrix::SMatrix(const SMatrix &matrix) {
 	arr_size = matrix.arr_size;
+	arr_used = matrix.arr_used;
 	row_num = matrix.row_num;
 	column_num = matrix.column_num;
 	vals_ = new int[arr_size];
 	cidx_ = new size_type[arr_size];
+	ridx_ = matrix.ridx_;
+
 	iter_row = matrix.iter_row;
 	iter_column = matrix.iter_column;
 
-	copy(matrix.vals_, matrix.vals_+ mar);
-	copy(cidx_, matrix.cidx_, sizeof(int) * matrix.arr_size);
+	copy(matrix.vals_, matrix.vals_ + arr_size, vals_);
+	copy(matrix.cidx_, matrix.cidx_ + arr_size, cidx_);
 }
 
 // move constructor
 SMatrix::SMatrix(SMatrix&& matrix) :
-		vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(std::move(matrix.ridx_)) , arr_size(matrix.arr_size), row_num(
-				matrix.row_num), column_num(matrix.column_num), iter_row(0), iter_column(0) {
-	arr_size = matrix.arr_size;
-	ridx_ = matrix.ridx_;
-	row_num = matrix.row_num;
-	column_num = matrix.column_num;
-	iter_row = matrix.iter_row;
-	iter_column = matrix.iter_column;
-	vals_ = new int[arr_size];
-	cidx_ = new size_type[arr_size];
-
-	move(matrix.vals_, matrix.vals_ + matrix.arr_size, vals_);
-	move(matrix.cidx_, matrix.cidx_ + matrix.arr_size, cidx_);
+		vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(
+				std::move(matrix.ridx_)), arr_size(matrix.arr_size), arr_used(
+				matrix.arr_used), row_num(matrix.row_num), column_num(
+				matrix.column_num), iter_row(0), iter_column(0) {
+//	arr_size = matrix.arr_size;
+//	ridx_ = matrix.ridx_;
+//	row_num = matrix.row_num;
+//	column_num = matrix.column_num;
+//	iter_row = matrix.iter_row;
+//	iter_column = matrix.iter_column;
+//	vals_ = new int[arr_size];
+//	cidx_ = new size_type[arr_size];
+//
+//	move(matrix.vals_, matrix.vals_ + matrix.arr_size, vals_);
+//	move(matrix.cidx_, matrix.cidx_ + matrix.arr_size, cidx_);
 	matrix.~SMatrix();
 }
 
 // initializer_list
-SMatrix::SMatrix(const std::initializer_list<std::initializer_list<int>>& list) {
+SMatrix::SMatrix(
+		const std::initializer_list<std::initializer_list<int>>& list) {
+	int size = list.size();
+	arr_size = min(size, 1000);
+	iter_row = 0;
+	iter_column = 0;
+	row_num = 0;
+	column_num = 0;
+	vals_ = new int[arr_size];
+	cidx_ = new size_type[arr_size];
+
+	for (auto iter : list) {
+		auto i = iter.begin();
+		int row = *i;
+		int col = *++i;
+		int val = *++i;
+
+		if (row_num < row)
+			row_num = row;
+		if (column_num < col)
+			column_num = col;
+		setVal(row, col, val);
+	}
 
 }
 
 SMatrix::~SMatrix() {
 	arr_size = 0;
+	arr_used = 0;
 	row_num = 0;
 	column_num = 0;
 	iter_row = 0;
@@ -84,7 +138,6 @@ SMatrix::~SMatrix() {
 	delete[] cidx_;
 	vals_ = nullptr;
 	cidx_ = nullptr;
-	ridx_.clear();
 }
 
 /*************************************************************
@@ -106,6 +159,7 @@ SMatrix& SMatrix::operator=(const SMatrix &matrix) {
 		cidx_ = new size_type[arr_size];
 		ridx_ = matrix.ridx_;
 
+		//which would be more efficient, memcyp() or std::copy()?
 		memcpy(vals_, matrix.vals_, sizeof(int) * matrix.arr_size);
 		memcpy(cidx_, matrix.cidx_, sizeof(int) * matrix.arr_size);
 
@@ -131,28 +185,99 @@ SMatrix& SMatrix::operator=(SMatrix &&matrix) {
 	return *this;
 }
 
-SMatrix& SMatrix::operator+=(const SMatrix& matrix) throw (MatrixError) {
-	*this = *this + matrix;
+SMatrix& SMatrix::operator+=(const SMatrix& m) throw (MatrixError) {
+	if (this->rows() != m.rows() || this->cols() != m.cols()) {
+		throw MatrixError("Matrix size error: ");
+	}
+
+	for (auto i = 0; i < rows(); ++i) {
+		for (auto j = 0; j < cols(); ++j) {
+			int l = value(i, j);
+			int r = m.value(i, j);
+			if (l == 0 && r == 0)
+				continue;
+			setVal(i, j, l + r);
+		}
+	}
+
 	return *this;
 }
 
-SMatrix& SMatrix::operator-=(const SMatrix& matrix) throw (MatrixError) {
-	*this = *this - matrix;
+SMatrix& SMatrix::operator-=(const SMatrix& m) throw (MatrixError) {
+	if (this->rows() != m.rows() || this->cols() != m.cols()) {
+		throw MatrixError("Matrix size error: ");
+	}
+
+//	if (this == m)
+//		return SMatrix(rows(), cols());
+
+	for (auto i = 0; i < rows(); ++i) {
+		for (auto j = 0; j < cols(); ++j) {
+			int l = value(i, j);
+			int r = m.value(i, j);
+			if (l == 0 && r == 0)
+				continue;
+			setVal(i, j, l - r);
+		}
+	}
+
 	return *this;
 }
 
-SMatrix& SMatrix::operator*=(const SMatrix& matrix) throw (MatrixError) {
-	*this = *this * matrix;
+SMatrix& SMatrix::operator*=(const SMatrix& m) throw (MatrixError) {
+	if (this->cols() != m.rows()) {
+		throw MatrixError("Matrix size error: ");
+	}
+
+	if (arr_used == 0) {
+		*this = SMatrix(rows(), m.cols());
+		return *this;
+	}
+
+	SMatrix ms(rows(), m.cols());
+	for (auto iter = ridx_.begin(); iter != ridx_.end(); ++iter) {
+		map<size_t, int> m_row;
+		size_t row = iter->first;
+		auto min = iter->second.first;
+		auto max = iter->second.first + iter->second.second;
+
+		for (auto i = min; i < max; ++i) {
+			size_t j = cidx_[i];
+			int lhs_v = vals_[i];
+			auto m_iter = m.ridx_.find(j);
+			if (m_iter == m.ridx_.end())
+				continue;
+			// rhs_i == lhs_j, so no need to define
+			auto m_min = m_iter->second.first;
+			auto m_max = m_iter->second.first + m_iter->second.second;
+			for (auto k = m_min; k < m_max; ++k) {
+				size_t m_j = m.cidx_[k];
+				int rhs_v = m.vals_[k];
+				m_row[m_j] += lhs_v * rhs_v;
+			}
+		}
+
+		for (auto mcit = m_row.begin(); mcit != m_row.end(); ++mcit) {
+			if (mcit->second == 0)
+				continue;
+			ms.setVal(row, mcit->first, mcit->second);
+		}
+	}
+
+	*this = ms;
+
 	return *this;
 }
 
-int SMatrix::operator()(size_type row, size_type column) const throw (MatrixError) {
-	if (rows() < row || column_num < column)
-		throw MatrixError("Row/Column out of Matrix range");
+int SMatrix::operator()(size_type row, size_type column) const
+		throw (MatrixError) {
+	if (rows() < row || cols() < column)
+		throw MatrixError("Matrix bound error: ");
 
 	auto iter = ridx_.find(row);
 	if (iter != ridx_.end()) {
-		for (auto i = iter->second.first; i < iter->second.first + iter->second.second; ++i) {
+		for (auto i = iter->second.first;
+				i < iter->second.first + iter->second.second; ++i) {
 			if (cidx_[i] == column)
 				return vals_[i];
 		}
@@ -160,15 +285,38 @@ int SMatrix::operator()(size_type row, size_type column) const throw (MatrixErro
 	return 0;
 }
 
-bool SMatrix::setVal(size_type row, size_type column, int val) throw (MatrixError) {
-	return false;
+bool SMatrix::setVal(size_type row, size_type col, int val) throw (MatrixError) {
+
+	if (row >= rows() || col >= cols()) {
+		throw MatrixError("Matrix bound error: ");
+	}
+
+	bool is_succ = false;
+	bool is_exist = is_element_exist(row, col);
+
+	if (is_exist) {
+		if (val == 0) {
+			is_succ = is_remove_elemetn(row, col);
+		} else {
+			vals_[col] = val;
+			is_succ = true;
+		}
+	} else {
+		if (val != 0) {
+			++arr_used;
+			is_succ = is_insert_new_element(row, col, val);
+		}
+	}
+
+	return is_succ;
 }
 
 /*************************************************************
  *
- * Friends
+ * Friends Functions
  *
  *************************************************************/
+
 bool operator==(const SMatrix &a, const SMatrix &b) {
 	if (a.rows() != b.rows() || b.cols() != b.cols())
 		return false;
@@ -180,7 +328,7 @@ bool operator==(const SMatrix &a, const SMatrix &b) {
 		if (a.vals_[i] != b.vals_[i] || a.cidx_[i] != b.cidx_[i])
 			return false;
 	}
-	// compare map ridx_
+// compare map ridx_
 
 	return true;
 }
@@ -223,21 +371,46 @@ SMatrix operator*(const SMatrix &a, const SMatrix &b) throw (MatrixError) {
 	}
 }
 
-SMatrix transpose(const SMatrix &matrix) {
+SMatrix transpose(const SMatrix &m) {
+	SMatrix res(m.cols(), m.rows());
+	for (auto i = m.ridx_.begin(); i != m.ridx_.end(); ++i) {
+		auto row = (*i).first;
+		auto col_min = (*i).second.first;
+		auto col_max = (*i).second.first + (*i).second.second;
+		for (auto j = col_min; j < col_max; ++j) {
+			auto col = m.cidx_[j];
+			res.setVal(col, row, m.vals_[j]);
+		}
+	}
 
+	return res;
 }
 
+// this operator will be used as the primary testing mechanism
+// make sure that it behaves ***EXACTLY*** as specified
 std::ostream& operator<<(std::ostream &os, const SMatrix &m) {
 
-	// this operator will be used as the primary testing mechanism
-	// make sure that it behaves ***EXACTLY*** as specified
+	if (m.rows() > 0 && m.cols() > 0) {
+		os << "(" << m.rows() << "," << m.cols() << "," << m.arr_size << ")";
+		for (auto iter = m.ridx_.cbegin(); iter != m.ridx_.cend(); ++iter) {
+			os << endl;
+			int r = iter->first;
+			size_t c = iter->second.first;
+			unsigned int last_in_row = c + iter->second.second;
+			for (auto i = c; i < last_in_row; ++i) {
+				os << "(" << r << "," << m.cidx_[i] << "," << m.vals_[i] << ")";
+				if (i < last_in_row - 1)
+					os << " ";
+			}
+		}
+	}
 
 	return os;
 }
 
 /*************************************************************
  *
- * Iterators Operations
+ * Iterators
  *
  *************************************************************/
 
@@ -261,5 +434,135 @@ void SMatrix::next() const {
 
 int SMatrix::value() const {
 	return (*this)(iter_row, iter_column);
+}
+
+int SMatrix::value(size_type row, size_type col) const {
+	return (*this)(row, col);
+}
+
+/*************************************************************
+ *
+ * Helper Functions
+ *
+ *************************************************************/
+
+std::pair<std::pair<size_t, size_t>, int> SMatrix::parse_input(
+		const std::string& str) {
+	size_t row;
+	size_t column;
+	int val;
+
+	std::string s = str.substr(1, str.length() - 2);
+	std::replace(s.begin(), s.end(), ',', ' ');
+	std::istringstream iss(s);
+	iss >> row >> column >> val;
+	std::pair<std::pair<size_t, size_t>, int> ptr = make_pair(
+			make_pair(row, column), val);
+	return ptr;
+}
+
+/*
+ * Check if the entry (row, col) given exist in the ridx_, cidx_
+ */
+bool SMatrix::is_element_exist(size_type row, size_type col) const {
+	if (ridx_.find(row) != ridx_.end()) {
+		if (cidx_[ridx_.at(row).first] <= col
+				&& col < cidx_[ridx_.at(row).first + ridx_.at(row).second]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool SMatrix::is_insert_new_element(size_type row, size_type col, int val) {
+
+	// double vals_, cidx_ size if array reaches capacity
+	if (arr_used >= arr_size) {
+		arr_size *= 2;
+		int * vals = new int[arr_size];
+		size_type * cidx = new size_type[arr_size];
+
+		for (auto i = 0; i < arr_used; ++i) {
+			vals[i] = vals_[i];
+			cidx[i] = cidx_[i];
+		}
+		delete[] vals_;
+		delete[] cidx_;
+		vals_ = vals;
+		cidx_ = cidx;
+	}
+
+	// row already in ridx_
+	if (ridx_.find(row) != ridx_.end()) {
+		int min = ridx_.at(row).first;
+		int max = ridx_.at(row).first + ridx_.at(row).second;
+
+		++ridx_.at(row).second;
+		// find the position to insert the new entry
+		auto i = min;
+		for (; i < max; ++i) {
+			if (cidx_[i] >= col)
+				break;
+		}
+
+		auto tmp1 = vals_[i];
+		auto tmp2 = cidx_[i];
+		vals_[i] = val;
+		cidx_[i] = col;
+		++i;
+		for (; i <= arr_used; ++i) {
+			auto tm1 = vals_[i];
+			auto tm2 = cidx_[i];
+
+			vals_[i] = tmp1;
+			cidx_[i] = tmp2;
+			tmp1 = tm1;
+			tmp2 = tm2;
+		}
+	} else {
+		vals_[arr_used] = val;
+		cidx_[arr_used] = col;
+		ridx_.insert(
+				std::pair<size_type, std::pair<size_t, unsigned int>>(row,
+						make_pair(arr_used, 1)));
+	}
+	++arr_used;
+
+	return true;
+}
+
+bool SMatrix::is_remove_elemetn(size_type row, size_type col) {
+	if (!is_element_exist(row, col) || arr_used < 1)
+		return false;
+
+	int min = ridx_.at(row).first;
+
+	// update ridx_, move all pairs after fidx_.find(row) forward
+	// (row, col) is the only entry on the row, need to delete the
+	// entire row
+	if (ridx_.at(row).second == 1) {
+		ridx_.erase(ridx_.find(row));
+	} else {
+		--ridx_.at(row).second;
+		auto iter = ridx_.find(row);
+		++iter;
+		for (; iter != ridx_.end(); ++iter)
+			(*iter).second.first -= 1;
+	}
+
+	// remove entry from vals_ and cidx_
+	for (auto i = min; i < arr_used; ++i) {
+		cidx_[i] = cidx_[i + 1];
+		vals_[i] = vals_[i + 1];
+	}
+	cidx_[arr_used - 1] = 0;
+	vals_[arr_used - 1] = 0;
+	--arr_used;
+	return true;
+}
+
+bool SMatrix::is_update_element(size_type row, size_type col, int) {
+
+	return false;
 }
 
