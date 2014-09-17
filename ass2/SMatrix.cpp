@@ -33,6 +33,8 @@ SMatrix::SMatrix(size_type row, size_type column) {
 	iter_column = 0;
 }
 
+// How to use initializer list to use constructor
+// SMatrix(i, j) in this constructor?
 SMatrix::SMatrix(std::istream &is) {
 
 	string str;
@@ -298,12 +300,10 @@ bool SMatrix::setVal(size_type row, size_type col, int val) throw (MatrixError) 
 		if (val == 0) {
 			is_succ = is_remove_elemetn(row, col);
 		} else {
-			vals_[col] = val;
-			is_succ = true;
+			is_succ = is_update_element(row, col, val);
 		}
 	} else {
 		if (val != 0) {
-			++arr_used;
 			is_succ = is_insert_new_element(row, col, val);
 		}
 	}
@@ -391,7 +391,7 @@ SMatrix transpose(const SMatrix &m) {
 std::ostream& operator<<(std::ostream &os, const SMatrix &m) {
 
 	if (m.rows() > 0 && m.cols() > 0) {
-		os << "(" << m.rows() << "," << m.cols() << "," << m.arr_size << ")";
+		os << "(" << m.rows() << "," << m.cols() << "," << m.arr_used << ")";
 		for (auto iter = m.ridx_.cbegin(); iter != m.ridx_.cend(); ++iter) {
 			os << endl;
 			int r = iter->first;
@@ -466,8 +466,12 @@ std::pair<std::pair<size_t, size_t>, int> SMatrix::parse_input(
  */
 bool SMatrix::is_element_exist(size_type row, size_type col) const {
 	if (ridx_.find(row) != ridx_.end()) {
-		if (cidx_[ridx_.at(row).first] <= col
-				&& col < cidx_[ridx_.at(row).first + ridx_.at(row).second]) {
+		auto iter = ridx_.find(row);
+		auto min = iter->second.first;
+		auto max = iter->second.first + iter->second.second;
+//		cout << cidx_[min] << " " << cidx_[max - 1] << endl;
+//		cout << (cidx_[min] <= col && cidx_[max - 1] > col) << endl;
+		if (cidx_[min] <= col && cidx_[max - 1] > col) {
 			return true;
 		}
 	}
@@ -561,7 +565,19 @@ bool SMatrix::is_remove_elemetn(size_type row, size_type col) {
 	return true;
 }
 
-bool SMatrix::is_update_element(size_type row, size_type col, int) {
+bool SMatrix::is_update_element(size_type row, size_type col, int val) {
+	if (!is_element_exist(row, col) || arr_used < 1)
+		return false;
+
+	if (ridx_.find(row) != ridx_.end()) {
+		auto iter = ridx_.find(row);
+		auto min = iter->second.first;
+		auto max = iter->second.first + iter->second.second;
+		for (auto i = min; i < max; ++i) {
+			if (cidx_[i] == col)
+				vals_[i] = val;
+		}
+	}
 
 	return false;
 }

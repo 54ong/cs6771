@@ -9,8 +9,8 @@ Step 3. diff test0.out test0.sol
 
 int main(void) {
   SMatrix m(2, 3);
-
-  std::cout << m;
+  SMatrix n(4);
+  std::cout <<  n;
 
   return 0;
 }

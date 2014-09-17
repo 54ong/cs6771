@@ -8,31 +8,38 @@ CXX = g++
 #CXX = g++
 
 # compiler flags
-CPPFLAGS = -Wall -Werror -O2 -std=c++11
+#CPPFLAGS = -Wall -Werror -O2 -std=c++11
 # enable this line for debugging
-# CPPFLAGS = -Wall -g -std=c++11
+CPPFLAGS = -Wall -g -Werror -O2 -std=c++11
 
-default: test0 test1 test2 test3 test4 test5
+#default: test0 test1 test2 test3 test4 test5 my_test0 
 
-test0: SMatrix.h SMatrix.cpp test0.cpp
-	$(CXX) $(CPPFLAGS) -o test0 SMatrix.cpp test0.cpp
+#test0: SMatrix.h SMatrix.cpp test0.cpp#
+#	$(CXX) $(CPPFLAGS) -o test0 SMatrix.cpp test0.cpp
 
-test1: SMatrix.h SMatrix.cpp test1.cpp
-	$(CXX) $(CPPFLAGS) -o test1 SMatrix.cpp test1.cpp
+#test1: SMatrix.h SMatrix.cpp test1.cpp
+#	$(CXX) $(CPPFLAGS) -o test1 SMatrix.cpp test1.cpp
 
-test2: SMatrix.h SMatrix.cpp test2.cpp
-	$(CXX) $(CPPFLAGS) -o test2 SMatrix.cpp test2.cpp
+#test2: SMatrix.h SMatrix.cpp test2.cpp
+#	$(CXX) $(CPPFLAGS) -o test2 SMatrix.cpp test2.cpp
 
-test3: SMatrix.h SMatrix.cpp test3.cpp
-	$(CXX) $(CPPFLAGS) -o test3 SMatrix.cpp test3.cpp
+#test3: SMatrix.h SMatrix.cpp test3.cpp
+#	$(CXX) $(CPPFLAGS) -o test3 SMatrix.cpp test3.cpp
 
-test4: SMatrix.h SMatrix.cpp test4.cpp
-	$(CXX) $(CPPFLAGS) -o test4 SMatrix.cpp test4.cpp
+#test4: SMatrix.h SMatrix.cpp test4.cpp
+#	$(CXX) $(CPPFLAGS) -o test4 SMatrix.cpp test4.cpp
 
-test5: SMatrix.h SMatrix.cpp test5.cpp
-	$(CXX) $(CPPFLAGS) -o test5 SMatrix.cpp test5.cpp
+#test5: SMatrix.h SMatrix.cpp test5.cpp
+#	$(CXX) $(CPPFLAGS) -o test5 SMatrix.cpp test5.cpp
+
+default: my_test0 
+
+my_test0: SMatrix.h SMatrix.cpp my_test0.cpp
+	$(CXX) $(CPPFLAGS) -o my_test0 SMatrix.cpp my_test0.cpp
+	
+	
 clean: 
-	rm -rf *.o a.out core *.dSYM test[0-4]
+	rm -rf *.o a.out core *.dSYM my_test[0-4]
 
 immaculate: clean
 	rm -f test? *~
