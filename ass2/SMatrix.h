@@ -96,12 +96,13 @@ private:
 	int column_num; 	//total number of colums
 	mutable size_type iter_row;
 	mutable size_type iter_column;
+
 	// you may/should augment the private interface as required by your implementation
 	std::pair<std::pair<size_t, size_t>, int> parse_input(const std::string&);
-	bool is_element_exist(size_type, size_type) const;
-	bool is_insert_new_element(size_type, size_type, int);
-	bool is_remove_elemetn(size_type, size_type);
-	bool is_update_element(size_type, size_type, int);
+	bool is_element_exist(const size_type, const size_type) const;
+	bool is_insert_new_element(const size_type, const size_type, int);
+	bool is_remove_elemetn(const size_type, const size_type);
+	bool is_update_element(const size_type, const size_type, int);
 };
 
 #endif

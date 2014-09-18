@@ -82,23 +82,25 @@ SMatrix::SMatrix(const SMatrix &matrix) {
 }
 
 // move constructor
-SMatrix::SMatrix(SMatrix&& matrix) :
-		vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(
-				std::move(matrix.ridx_)), arr_size(matrix.arr_size), arr_used(
-				matrix.arr_used), row_num(matrix.row_num), column_num(
-				matrix.column_num), iter_row(0), iter_column(0) {
+SMatrix::SMatrix(SMatrix&& matrix)  :
+				vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(
+						std::move(matrix.ridx_)), arr_size(matrix.arr_size), arr_used(
+						matrix.arr_used), row_num(matrix.row_num), column_num(
+						matrix.column_num), iter_row(0), iter_column(0){
 //	arr_size = matrix.arr_size;
-//	ridx_ = matrix.ridx_;
+//	arr_used = matrix.arr_used;
 //	row_num = matrix.row_num;
 //	column_num = matrix.column_num;
 //	iter_row = matrix.iter_row;
 //	iter_column = matrix.iter_column;
+//	ridx_ = matrix.ridx_;
 //	vals_ = new int[arr_size];
 //	cidx_ = new size_type[arr_size];
 //
 //	move(matrix.vals_, matrix.vals_ + matrix.arr_size, vals_);
 //	move(matrix.cidx_, matrix.cidx_ + matrix.arr_size, cidx_);
-	matrix.~SMatrix();
+//	matrix.~SMatrix();
+	matrix = SMatrix(0, 0);
 }
 
 // initializer_list
@@ -182,7 +184,8 @@ SMatrix& SMatrix::operator=(SMatrix &&matrix) {
 
 		move(matrix.vals_, matrix.vals_ + matrix.arr_size, vals_);
 		move(matrix.cidx_, matrix.cidx_ + matrix.arr_size, cidx_);
-		matrix.~SMatrix();
+//		matrix.~SMatrix();
+		matrix = SMatrix(0,0);
 	}
 	return *this;
 }
@@ -464,21 +467,29 @@ std::pair<std::pair<size_t, size_t>, int> SMatrix::parse_input(
 /*
  * Check if the entry (row, col) given exist in the ridx_, cidx_
  */
-bool SMatrix::is_element_exist(size_type row, size_type col) const {
+bool SMatrix::is_element_exist(const size_type row, const size_type col) const {
 	if (ridx_.find(row) != ridx_.end()) {
 		auto iter = ridx_.find(row);
 		auto min = iter->second.first;
 		auto max = iter->second.first + iter->second.second;
+//		cout << "min " << min << " max " << max << endl;
 //		cout << cidx_[min] << " " << cidx_[max - 1] << endl;
 //		cout << (cidx_[min] <= col && cidx_[max - 1] > col) << endl;
-		if (cidx_[min] <= col && cidx_[max - 1] > col) {
-			return true;
+
+		for (auto i = min; i < max; ++i) {
+			if (cidx_[i] == col)
+				return true;
 		}
+
+		//		if (cidx_[min] <= col && cidx_[max - 1] > col) {
+//			return true;
+//		}
 	}
 	return false;
 }
 
-bool SMatrix::is_insert_new_element(size_type row, size_type col, int val) {
+bool SMatrix::is_insert_new_element(const size_type row, const size_type col,
+		int val) {
 
 	// double vals_, cidx_ size if array reaches capacity
 	if (arr_used >= arr_size) {
@@ -535,7 +546,7 @@ bool SMatrix::is_insert_new_element(size_type row, size_type col, int val) {
 	return true;
 }
 
-bool SMatrix::is_remove_elemetn(size_type row, size_type col) {
+bool SMatrix::is_remove_elemetn(const size_type row, const size_type col) {
 	if (!is_element_exist(row, col) || arr_used < 1)
 		return false;
 
@@ -565,7 +576,8 @@ bool SMatrix::is_remove_elemetn(size_type row, size_type col) {
 	return true;
 }
 
-bool SMatrix::is_update_element(size_type row, size_type col, int val) {
+bool SMatrix::is_update_element(const size_type row, const size_type col,
+		int val) {
 	if (!is_element_exist(row, col) || arr_used < 1)
 		return false;
 
