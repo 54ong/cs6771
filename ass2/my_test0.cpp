@@ -11,16 +11,19 @@ int main(void) {
 //  SMatrix m;
 //  SMatrix m(std::cin);
 
-//	SMatrix m(5, 7);
+	SMatrix m(5, 7);
 //	m.setVal(2, 6, 5);
 //	m.setVal(2, 0, 3);
 //	m.setVal(2, 3, 4);
-//	m.setVal(3, 2, 9);
-//	m.setVal(0, 3, 10);
-//	m.setVal(0, 4, 1);
-//	m.setVal(4, 1, 2);
-//	m.setVal(0, 3, 2);
+	m.setVal(3, 2, 9);
+	m.setVal(0, 3, 10);
+	m.setVal(4, 1, 2);
+	cout << m << endl;
 
+	m.setVal(0, 4, 1);
+	cout << m << endl;
+//	m.setVal(0, 3, 0);
+//	cout << "after " << m << endl;
 // copy & move constructors
 //	SMatrix m2;
 //	m2 = m;
@@ -40,19 +43,48 @@ int main(void) {
 //	 SMatrix b(iss);
 //	 cout << b << endl;
 
+//	SMatrix m { { 4, 4, 3 }, { 1, 1, 1 }, { 1, 2, 10 }, { 2, 2, 5 } };
+//	std::cout << m << std::endl;
+
 // setValue
 //	SMatrix m1(2, 3);
 //	for (auto i = 0; i < 2; ++i)
 //		for (auto j = 0; j < 3; ++j)
 //			m1.setVal(i, j, i + j);
 //	cout << "m1: " << endl << m1 << endl;
+//
+//	SMatrix a(500000000, 1000000000);
+//	for (SMatrix::size_type i = 0; i < 200; ++i)
+//		for (SMatrix::size_type j = 0; j < 200; ++j)
+//			a.setVal(i + 1000000, j + 1000000, -1);
+//
+//	std::cout << a << std::endl;
 
-	SMatrix a(500000000, 1000000000);
-	for (SMatrix::size_type i = 0; i < 200; ++i)
-		for (SMatrix::size_type j = 0; j < 200; ++j)
-			a.setVal(i + 1000000, j + 1000000, -1);
+//	SMatrix m1(500000000, 1000000000);
+//	SMatrix m2(500000000, 1000000000);
 
-	std::cout << a << std::endl;
+//	SMatrix m1(10, 10);
+//	SMatrix m2(10, 10);
+//
+//	for (SMatrix::size_type i = 0; i < 5; ++i) {
+//		for (SMatrix::size_type j = 0; j < 5; ++j) {
+//			m1.setVal(i + 1, j + 1, -1);
+//		}
+//	}
+//	for (SMatrix::size_type i = 0; i < 200; ++i)
+//		for (SMatrix::size_type j = 0; j < 200; ++j)
+//	for (SMatrix::size_type i = 0; i < 5; ++i)
+//		for (SMatrix::size_type j = 0; j < 5; ++j)
+//			m2.setVal(i + 1, j + 1, 1);
+//	m2.setVal(i + 1000000, j + 1000000, 1);
+
+//	cout << "before addition" << endl << "m1: " << endl << m1 << endl;
+//	cout << "m2: " << endl << m2 << endl;
+//
+//	m2 += m1;
+//	m1 += m2;
+//	cout << "after addition" << endl << "m1: " << endl << m1 << endl;
+//	cout << "m2: " << endl << m2 << endl;
 
 	return 0;
 }
