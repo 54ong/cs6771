@@ -2,12 +2,14 @@
 #define SMATRIX_H
 
 #include <exception>
-#include <iostream>
 #include <map>
 #include <string>
+#include <cstring>
 #include <utility>
 #include <vector>
 #include <sstream>
+#include <iostream>
+#include <algorithm>
 
 #include <cstddef>
 

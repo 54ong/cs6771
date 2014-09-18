@@ -1,5 +1,6 @@
 #include "SMatrix.h"
 
+
 using namespace std;
 // Your fantastic implementation goes here!
 // You should test it extensively to ensure that it behaves exactly 
@@ -82,11 +83,11 @@ SMatrix::SMatrix(const SMatrix &matrix) {
 }
 
 // move constructor
-SMatrix::SMatrix(SMatrix&& matrix)  :
-				vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(
-						std::move(matrix.ridx_)), arr_size(matrix.arr_size), arr_used(
-						matrix.arr_used), row_num(matrix.row_num), column_num(
-						matrix.column_num), iter_row(0), iter_column(0){
+SMatrix::SMatrix(SMatrix&& matrix) :
+		vals_(matrix.vals_), cidx_(matrix.cidx_), ridx_(
+				std::move(matrix.ridx_)), arr_size(matrix.arr_size), arr_used(
+				matrix.arr_used), row_num(matrix.row_num), column_num(
+				matrix.column_num), iter_row(0), iter_column(0) {
 //	arr_size = matrix.arr_size;
 //	arr_used = matrix.arr_used;
 //	row_num = matrix.row_num;
@@ -185,7 +186,7 @@ SMatrix& SMatrix::operator=(SMatrix &&matrix) {
 		move(matrix.vals_, matrix.vals_ + matrix.arr_size, vals_);
 		move(matrix.cidx_, matrix.cidx_ + matrix.arr_size, cidx_);
 //		matrix.~SMatrix();
-		matrix = SMatrix(0,0);
+		matrix = SMatrix(0, 0);
 	}
 	return *this;
 }
@@ -195,8 +196,8 @@ SMatrix& SMatrix::operator+=(const SMatrix& m) throw (MatrixError) {
 		throw MatrixError("Matrix size error: ");
 	}
 
-	for (auto i = 0; i < rows(); ++i) {
-		for (auto j = 0; j < cols(); ++j) {
+	for (size_type i = 0; i < rows(); ++i) {
+		for (size_type j = 0; j < cols(); ++j) {
 			int l = value(i, j);
 			int r = m.value(i, j);
 			if (l == 0 && r == 0)
@@ -216,8 +217,8 @@ SMatrix& SMatrix::operator-=(const SMatrix& m) throw (MatrixError) {
 //	if (this == m)
 //		return SMatrix(rows(), cols());
 
-	for (auto i = 0; i < rows(); ++i) {
-		for (auto j = 0; j < cols(); ++j) {
+	for (size_type i = 0; i < rows(); ++i) {
+		for (size_type j = 0; j < cols(); ++j) {
 			int l = value(i, j);
 			int r = m.value(i, j);
 			if (l == 0 && r == 0)
