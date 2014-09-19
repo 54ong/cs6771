@@ -92,8 +92,8 @@ private:
 	size_type *cidx_;
 	std::map<size_type, std::pair<size_t, unsigned int> > ridx_;
 
-	int arr_size; 		// the size of vals_ and cidx_ array
-	int arr_used;		// array vals_, cidx_ used (number of non-zero entries)
+	size_type arr_size; 		// the size of vals_ and cidx_ array
+	size_type arr_used;		// array vals_, cidx_ used (number of non-zero entries)
 	int row_num;  		// total number of rows
 	int column_num; 	//total number of colums
 	mutable size_type iter_row;

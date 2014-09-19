@@ -1,10 +1,6 @@
 #include "SMatrix.h"
 
 using namespace std;
-// Your fantastic implementation goes here!
-// You should test it extensively to ensure that it behaves exactly 
-// as required by the specification, it does not leak memory and is
-// optimised for performance!
 
 /*************************************************************
  *
@@ -176,16 +172,17 @@ SMatrix& SMatrix::operator=(const SMatrix &matrix) {
 SMatrix& SMatrix::operator=(SMatrix &&matrix) {
 	if (*this != matrix) {
 		arr_size = matrix.arr_size;
+		arr_used = matrix.arr_used;
 		row_num = matrix.row_num;
 		column_num = matrix.column_num;
+		iter_row = matrix.iter_row;
+		iter_column = matrix.iter_column;
 
 		vals_ = new int[arr_size];
 		cidx_ = new size_type[arr_size];
 		ridx_ = matrix.ridx_;
-
 		move(matrix.vals_, matrix.vals_ + matrix.arr_size, vals_);
 		move(matrix.cidx_, matrix.cidx_ + matrix.arr_size, cidx_);
-//		matrix.~SMatrix();
 		matrix = SMatrix(0, 0);
 	}
 	return *this;
@@ -196,7 +193,6 @@ SMatrix& SMatrix::operator+=(const SMatrix& m) throw (MatrixError) {
 		throw MatrixError("Matrix size error: ");
 	}
 
-//	SMatrix tmp(rows(), cols());
 	if (m.arr_used == 0) {
 		return *this;
 	} else if (arr_used == 0 && m.arr_used != 0) {
@@ -206,87 +202,77 @@ SMatrix& SMatrix::operator+=(const SMatrix& m) throw (MatrixError) {
 
 	auto iter = ridx_.begin();
 	auto m_iter = m.ridx_.begin();
-	size_t lhs_i;
-	size_t rhs_i;
+	size_type lhs_row;
+	size_type rhs_row;
 	while (iter != ridx_.end() && m_iter != m.ridx_.end()) {
-		lhs_i = iter->first;
-		rhs_i = m_iter->first;
-		if (lhs_i > rhs_i) {
-			size_t rhs_startIdx = m_iter->second.first;
-			unsigned int rhs_numValsInRow = m_iter->second.second;
-			for (unsigned int k = 0; k < rhs_numValsInRow; ++k) {
-				size_t rhs_j = m.cidx_[rhs_startIdx + k];
-				int rhs_v = m.vals_[rhs_startIdx + k];
-				setVal(rhs_i, rhs_j, rhs_v);
+		lhs_row = iter->first;
+		rhs_row = m_iter->first;
+
+		size_type lhs_min = iter->second.first;
+		size_type lhs_max = iter->second.first + iter->second.second;
+
+		size_type rhs_min = m_iter->second.first;
+		size_type rhs_max = m_iter->second.first + m_iter->second.second;
+
+		if (lhs_row > rhs_row) {
+			for (size_type k = rhs_min; k < rhs_max; ++k) {
+				size_type rhs_col = m.cidx_[k];
+				int rhs_val = m.vals_[k];
+				setVal(rhs_row, rhs_col, rhs_val);
 			}
 			++m_iter;
-		} else if (lhs_i < rhs_i) {
-			size_t lhs_startIdx = iter->second.first;
-			unsigned int lhs_numValsInRow = iter->second.second;
-			for (unsigned int k = 0; k < lhs_numValsInRow; ++k) {
-				size_t lhs_j = cidx_[lhs_startIdx + k];
-				int lhs_v = vals_[lhs_startIdx + k];
-				setVal(lhs_i, lhs_j, lhs_v);
+		} else if (lhs_row < rhs_row) {
+			for (size_type k = lhs_min; k < lhs_max; ++k) {
+				size_type lhs_col = cidx_[k];
+				int lhs_val = vals_[k];
+				setVal(lhs_row, lhs_col, lhs_val);
 			}
 			++iter;
-		} else if (lhs_i == rhs_i) {
-			map<size_t, int> m_row; // result of the current row
-			size_t lhs_startIdx = iter->second.first;
-			unsigned int lhs_numValsInRow = iter->second.second;
-			for (unsigned int k = 0; k < lhs_numValsInRow; ++k) {
-				size_t lhs_j = cidx_[lhs_startIdx + k];
-				int lhs_v = vals_[lhs_startIdx + k];
-				m_row[lhs_j] = lhs_v;
+		} else if (lhs_row == rhs_row) {
+			map<size_t, int> m_row;
+
+			for (size_type k = lhs_min; k < lhs_max; ++k) {
+				size_type lhs_col = cidx_[k];
+				int lhs_val = vals_[k];
+				m_row[lhs_col] = lhs_val;
 			}
-			size_t rhs_startIdx = m_iter->second.first;
-			unsigned int rhs_numValsInRow = m_iter->second.second;
-			for (unsigned int k = 0; k < rhs_numValsInRow; ++k) {
-				size_t rhs_j = m.cidx_[rhs_startIdx + k];
-				int rhs_v = m.vals_[rhs_startIdx + k];
-				m_row[rhs_j] += rhs_v;
+			for (size_type k = rhs_min; k < rhs_max; ++k) {
+				size_type rhs_col = m.cidx_[k];
+				int rhs_val = m.vals_[k];
+				m_row[rhs_col] += rhs_val;
 			}
-			map<size_t, int>::const_iterator mit;
-			for (mit = m_row.begin(); mit != m_row.end(); ++mit) {
-				if (mit->second == 0)
-					continue;
-				setVal(lhs_i, mit->first, mit->second);
+
+			for (auto m_it = m_row.begin(); m_it != m_row.end(); ++m_it) {
+				setVal(lhs_row, m_it->first, m_it->second);
 			}
 			++iter;
 			++m_iter;
 		}
 	}
+
 	while (iter == ridx_.end() && m_iter != m.ridx_.end()) {
-		rhs_i = m_iter->first;
-		size_t rhs_startIdx = m_iter->second.first;
-		unsigned int rhs_numValsInRow = m_iter->second.second;
-		for (unsigned int k = 0; k < rhs_numValsInRow; ++k) {
-			size_t rhs_j = m.cidx_[rhs_startIdx + k];
-			int rhs_v = m.vals_[rhs_startIdx + k];
-			setVal(rhs_i, rhs_j, rhs_v);
+		rhs_row = m_iter->first;
+		size_type rhs_min = m_iter->second.first;
+		size_type rhs_max = m_iter->second.first + m_iter->second.second;
+		for (size_type k = rhs_min; k < rhs_max; ++k) {
+			size_type rhs_col = m.cidx_[k];
+			int rhs_val = m.vals_[k];
+			setVal(rhs_row, rhs_col, rhs_val);
 		}
 		++m_iter;
 	}
+
 	while (iter != ridx_.end() && m_iter == m.ridx_.end()) {
-		lhs_i = iter->first;
-		size_t lhs_startIdx = iter->second.first;
-		unsigned int lhs_numValsInRow = iter->second.second;
-		for (unsigned int k = 0; k < lhs_numValsInRow; ++k) {
-			size_t lhs_j = cidx_[lhs_startIdx + k];
-			int lhs_v = vals_[lhs_startIdx + k];
-			setVal(lhs_i, lhs_j, lhs_v);
+		lhs_row = iter->first;
+		size_type lhs_min = iter->second.first;
+		size_type lhs_max = iter->second.first + iter->second.second;
+		for (size_type k = lhs_min; k < lhs_max; ++k) {
+			size_type lhs_col = cidx_[k];
+			int lhs_val = vals_[k];
+			setVal(lhs_row, lhs_col, lhs_val);
 		}
 		++iter;
 	}
-
-//	for (size_type i = 0; i < rows(); ++i) {
-//		for (size_type j = 0; j < cols(); ++j) {
-//			int l = value(i, j);
-//			int r = m.value(i, j);
-//			if (l == 0 && r == 0)
-//				continue;
-//			setVal(i, j, l + r);
-//		}
-//	}
 
 	return *this;
 }
@@ -296,19 +282,16 @@ SMatrix& SMatrix::operator-=(const SMatrix& m) throw (MatrixError) {
 		throw MatrixError("Matrix size error: ");
 	}
 
-//	if (this == m)
-//		return SMatrix(rows(), cols());
-
-	for (size_type i = 0; i < rows(); ++i) {
-		for (size_type j = 0; j < cols(); ++j) {
-			int l = value(i, j);
-			int r = m.value(i, j);
-			if (l == 0 && r == 0)
-				continue;
-			setVal(i, j, l - r);
-		}
+	if (*this == m) {
+		*this = SMatrix(rows(), cols());
+		return *this;
 	}
 
+	SMatrix tmp(m);
+	for (size_type i = 0; i < tmp.arr_used; ++i)
+		tmp.vals_[i] = -1 * tmp.vals_[i];
+
+	*this += tmp;
 	return *this;
 }
 
@@ -325,33 +308,32 @@ SMatrix& SMatrix::operator*=(const SMatrix& m) throw (MatrixError) {
 	SMatrix ms(rows(), m.cols());
 	for (auto iter = ridx_.begin(); iter != ridx_.end(); ++iter) {
 		map<size_t, int> m_row;
-		size_t row = iter->first;
-		auto min = iter->second.first;
-		auto max = iter->second.first + iter->second.second;
+		size_type row = iter->first;
+		size_type min = iter->second.first;
+		size_type max = iter->second.first + iter->second.second;
 
 		for (auto i = min; i < max; ++i) {
-			size_t j = cidx_[i];
-			int lhs_v = vals_[i];
-			auto m_iter = m.ridx_.find(j);
+			size_type col = cidx_[i];
+			int lhs_val = vals_[i];
+			auto m_iter = m.ridx_.find(col);
 			if (m_iter == m.ridx_.end())
 				continue;
-			// rhs_i == lhs_j, so no need to define
-			auto m_min = m_iter->second.first;
-			auto m_max = m_iter->second.first + m_iter->second.second;
-			for (auto k = m_min; k < m_max; ++k) {
-				size_t m_j = m.cidx_[k];
-				int rhs_v = m.vals_[k];
-				m_row[m_j] += lhs_v * rhs_v;
+
+			size_type m_min = m_iter->second.first;
+			size_type m_max = m_iter->second.first + m_iter->second.second;
+			for (size_type k = m_min; k < m_max; ++k) {
+				size_type m_col = m.cidx_[k];
+				int rhs_val = m.vals_[k];
+				m_row[m_col] += lhs_val * rhs_val;
 			}
 		}
 
-		for (auto mcit = m_row.begin(); mcit != m_row.end(); ++mcit) {
-			if (mcit->second == 0)
+		for (auto mc_it = m_row.begin(); mc_it != m_row.end(); ++mc_it) {
+			if (mc_it->second == 0)
 				continue;
-			ms.setVal(row, mcit->first, mcit->second);
+			ms.setVal(row, mc_it->first, mc_it->second);
 		}
 	}
-
 	*this = ms;
 
 	return *this;
@@ -410,11 +392,10 @@ bool operator==(const SMatrix &a, const SMatrix &b) {
 		return false;
 	if (a.ridx_.size() != b.ridx_.size())
 		return false;
-	for (auto i = 0; i < a.arr_size; ++i) {
+	for (size_t i = 0; i < a.arr_size; ++i) {
 		if (a.vals_[i] != b.vals_[i] || a.cidx_[i] != b.cidx_[i])
 			return false;
 	}
-// compare map ridx_
 
 	return true;
 }
@@ -472,6 +453,13 @@ SMatrix transpose(const SMatrix &m) {
 	return res;
 }
 
+SMatrix SMatrix::identity(size_type n) {
+	SMatrix matrix(n, n);
+	for (size_type k = 0; k < n; ++k)
+		matrix.setVal(k, k, 1);
+	return matrix;
+}
+
 // this operator will be used as the primary testing mechanism
 // make sure that it behaves ***EXACTLY*** as specified
 std::ostream& operator<<(std::ostream &os, const SMatrix &m) {
@@ -490,7 +478,6 @@ std::ostream& operator<<(std::ostream &os, const SMatrix &m) {
 			}
 		}
 	}
-
 	return os;
 }
 
@@ -555,10 +542,6 @@ bool SMatrix::is_element_exist(const size_type row, const size_type col) const {
 		auto iter = ridx_.find(row);
 		auto min = iter->second.first;
 		auto max = iter->second.first + iter->second.second;
-//		cout << "min " << min << " max " << max << endl;
-//		cout << cidx_[min] << " " << cidx_[max - 1] << endl;
-//		cout << (cidx_[min] <= col && cidx_[max - 1] > col) << endl;
-
 		for (auto i = min; i < max; ++i) {
 			if (cidx_[i] == col)
 				return true;
@@ -576,7 +559,7 @@ bool SMatrix::is_insert_new_element(const size_type row, const size_type col,
 		int * vals = new int[arr_size];
 		size_type * cidx = new size_type[arr_size];
 
-		for (auto i = 0; i < arr_used; ++i) {
+		for (size_type i = 0; i < arr_used; ++i) {
 			vals[i] = vals_[i];
 			cidx[i] = cidx_[i];
 		}
@@ -588,8 +571,8 @@ bool SMatrix::is_insert_new_element(const size_type row, const size_type col,
 
 	// row already in ridx_
 	if (ridx_.find(row) != ridx_.end()) {
-		int min = ridx_.at(row).first;
-		int max = ridx_.at(row).first + ridx_.at(row).second;
+		size_type min = ridx_.at(row).first;
+		size_type max = ridx_.at(row).first + ridx_.at(row).second;
 
 		++ridx_.at(row).second;
 		for (auto iter = ridx_.begin(); iter != ridx_.end(); ++iter) {
@@ -598,12 +581,11 @@ bool SMatrix::is_insert_new_element(const size_type row, const size_type col,
 		}
 
 		// find the position to insert the new entry
-		auto i = min;
+		size_type i = min;
 		for (; i < max; ++i) {
 			if (cidx_[i] >= col)
 				break;
 		}
-
 		auto tmp1 = vals_[i];
 		auto tmp2 = cidx_[i];
 		vals_[i] = val;
@@ -612,7 +594,6 @@ bool SMatrix::is_insert_new_element(const size_type row, const size_type col,
 		for (; i <= arr_used; ++i) {
 			auto tm1 = vals_[i];
 			auto tm2 = cidx_[i];
-
 			vals_[i] = tmp1;
 			cidx_[i] = tmp2;
 			tmp1 = tm1;
@@ -634,33 +615,24 @@ bool SMatrix::is_remove_elemetn(const size_type row, const size_type col) {
 	if (!is_element_exist(row, col) || arr_used < 1)
 		return false;
 
-	auto min = ridx_.at(row).first;
-	auto max = ridx_.at(row).first + ridx_.at(row).second;
-
-//	print_ridx_();
-//	cout << min << " " << ridx_.at(row).second << endl;
+	size_type min = ridx_.at(row).first;
+	size_type max = ridx_.at(row).first + ridx_.at(row).second;
 
 	// update ridx_, move all pairs after fidx_.find(row) forward
 	// (row, col) is the only entry on the row, need to delete the
 	// entire row
+	for (auto iter = ridx_.begin(); iter != ridx_.end(); ++iter) {
+		if (iter->second.first > min)
+			iter->second.first -= 1;
+	}
 	if (ridx_.at(row).second == 1) {
-//		print_ridx_();
 		ridx_.erase(ridx_.find(row));
-//		print_ridx_();
 	} else {
-//		print_ridx_();
 		--ridx_.at(row).second;
-		for (auto iter = ridx_.begin(); iter != ridx_.end(); ++iter) {
-			if (iter->second.first > min)
-				iter->second.first -= 1;
-		}
-//		print_ridx_();
 	}
 
 	// remove entry from vals_ and cidx_
-//	int max = ridx_.at(row).first + ridx_.at(row).second;
-
-	auto i = min;
+	size_type i = min;
 	for (; i < max; ++i) {
 		if (cidx_[i] >= col)
 			break;
@@ -673,12 +645,11 @@ bool SMatrix::is_remove_elemetn(const size_type row, const size_type col) {
 	cidx_[arr_used - 1] = 0;
 	vals_[arr_used - 1] = 0;
 	--arr_used;
-	if(ridx_.size() ==1){
+	if (ridx_.size() == 1) {
 		auto iter = ridx_.begin();
 		iter->second.first = 0;
 	}
 
-//	print_ridx_();
 	return true;
 }
 
@@ -714,10 +685,10 @@ void SMatrix::print_ridx_() const {
 		cout << "len: " << iter->second.second << " " << endl;
 	}
 	cout << endl;
-	for (auto i = 0; i < arr_used; ++i)
+	for (size_type i = 0; i < arr_used; ++i)
 		cout << cidx_[i] << " ";
 	cout << endl;
-	for (auto i = 0; i < arr_used; ++i)
+	for (size_type i = 0; i < arr_used; ++i)
 		cout << vals_[i] << " ";
 	cout << endl;
 }
