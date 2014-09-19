@@ -105,6 +105,9 @@ private:
 	bool is_insert_new_element(const size_type, const size_type, int);
 	bool is_remove_elemetn(const size_type, const size_type);
 	bool is_update_element(const size_type, const size_type, int);
+
+	// debugging functions
+	void print_ridx_() const;
 };
 
 #endif
