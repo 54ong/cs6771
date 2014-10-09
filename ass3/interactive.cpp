@@ -52,7 +52,7 @@ template <typename value> bool ReadCommand(Database<value>& db);
 template <typename value> bool WriteCommand(Database<value>& db);
 template <typename value> bool PrintCommand(Database<value>& db);
 template <typename value> bool SelectCommand(Database<value>& db);
-template <typename value> bool DeleteCommand(Database<value>& db);
+template<typename value> bool DeleteCommand(Database<value>& db);
 template <typename value> bool SelectWithCriteria(DBSelectOperation type, Database<value>& db);
 static bool HelpCommand();
 static bool QuitCommand();

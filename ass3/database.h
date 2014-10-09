@@ -3,7 +3,6 @@
 
 // Your database class definition goes here
 
-
 #include "database.tem"
 
 #endif
