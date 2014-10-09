@@ -26,25 +26,21 @@ enum DBQueryOperator {
 	Equal, NotEqual, LessThan, GreaterThan
 };
 
-// Need to add declarations for operator<< and operator >> here
-template<class > class Record;
+template<class> class Record;
 template<class value> ostream& operator<<(ostream& out, const Record<value>& r);
 template<class value> istream& operator>>(istream& in, Record<value>& r);
 
-template<class value>
-class Record {
+template<class value> class Record {
 public:
-	friend ostream& operator<<<value>(ostream& out, const Record<value>& r);
-	friend istream& operator>><value>(istream& in, Record<value>& r);
-
-	Record() :_isSelected(false) {};
+	Record() : _isSelected(false) {};
 	~Record() {};
 
-	bool isSelected() const;
-	void setSelected(bool val);
+	bool isSelected() const {return _isSelected;};
+	void setSelected(bool val) {_isSelected = val;};
 	bool matchesQuery(const string& attr, DBQueryOperator op,
 			const value& want) const;
-
+	friend ostream& operator<<<value>(ostream& out, const Record<value>& r);
+	friend istream& operator>><value>(istream& in, Record<value>& r);
 private:
 	bool _isSelected;
 	vector<pair<string, value>> record;

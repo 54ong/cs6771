@@ -1,5 +1,3 @@
-// Your implementation for the record class goes here.
-
 template<class value>
 ostream& operator<<(ostream& out, const Record<value>& r) {
 	return out;
@@ -8,4 +6,17 @@ ostream& operator<<(ostream& out, const Record<value>& r) {
 template<class value>
 istream& operator>>(istream& in, Record<value>& r) {
 	return in;
+}
+
+template<class value>
+bool Record<value>::matchesQuery(const string& attr, DBQueryOperator op,
+		const value& want) const {
+	return false;
+}
+
+template<>
+bool Record<string>::matchesQuery(const string& attr, DBQueryOperator op,
+		const value& want) const {
+	
+	return false;
 }

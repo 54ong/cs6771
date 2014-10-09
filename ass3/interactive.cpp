@@ -19,8 +19,8 @@
  * for criteria at cin and this code relies on >> working for the value.
  * Also, all database value types must have versions of the binary
  * operators =, !=, <, and >, as well as the output << operator.
- */ 
- 
+ */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -43,17 +43,21 @@ using namespace std;
  * since all these buffers come from stack where space is cheap.
  */
 
-enum CommandT {Help, Read, Print, Select, Delete, Write, Quit, NumOptions};
+enum CommandT {
+	Help, Read, Print, Select, Delete, Write, Quit, NumOptions
+};
 static CommandT GetCommandFromUser();
-template <typename value> void GetCriteriaValue(value& val);
+template<typename value> void GetCriteriaValue(value& val);
 void GetCriteriaValue(string& val);
-template <typename value> bool DispatchCommand(CommandT cmd, Database<value>& db);
-template <typename value> bool ReadCommand(Database<value>& db);
-template <typename value> bool WriteCommand(Database<value>& db);
-template <typename value> bool PrintCommand(Database<value>& db);
-template <typename value> bool SelectCommand(Database<value>& db);
+template<typename value> bool DispatchCommand(CommandT cmd,
+		Database<value>& db);
+template<typename value> bool ReadCommand(Database<value>& db);
+template<typename value> bool WriteCommand(Database<value>& db);
+template<typename value> bool PrintCommand(Database<value>& db);
+template<typename value> bool SelectCommand(Database<value>& db);
 template<typename value> bool DeleteCommand(Database<value>& db);
-template <typename value> bool SelectWithCriteria(DBSelectOperation type, Database<value>& db);
+template<typename value> bool SelectWithCriteria(DBSelectOperation type,
+		Database<value>& db);
 static bool HelpCommand();
 static bool QuitCommand();
 static void PrintHelpFile(const string& filename);
@@ -69,16 +73,16 @@ static string GetNextToken(bool singleWord = true);
  * to be infinite, but the "quit" command just directly uses exit()
  * to terminate when the user is done.
  */
- 
-template <typename value> void MainLoop(Database<value>& db)
-{ 
-  InitCommandLine();
-  while(true) {
-    if (DispatchCommand(GetCommandFromUser(), db))
-      cout << "\n" << db.numRecords() << " records (" << db.numSelected() << " selected)\n";
-    else 
-      cout << "\n";
-  }
+
+template<typename value> void MainLoop(Database<value>& db) {
+	InitCommandLine();
+	while (true) {
+		if (DispatchCommand(GetCommandFromUser(), db))
+			cout << "\n" << db.numRecords() << " records (" << db.numSelected()
+					<< " selected)\n";
+		else
+			cout << "\n";
+	}
 }
 
 /* 
@@ -89,52 +93,60 @@ template <typename value> void MainLoop(Database<value>& db)
  * just lets you pick from one of 3 types to test on.
  */
 
-int main()
-{
-  PrintHelpFile("help_interactive");
-  cout << "What type values would you like to test in the database?\n";
-  cout << "(1 = integer, 2 = string, 3 = Fraction): ";
-  int choice;
-  cin >> choice;
-  switch (choice) {
-  case 1: { 
-    Database<int> db;
-    MainLoop(db);
-    break; 
-  }
-  case 2: { 
-    Database<string> db;
-    MainLoop(db);
-    break; 
-  }
-  case 3: { 
-    Database<Fraction> db;
-    MainLoop(db);
-    break; 
-  }
-  default:
-    cout << "Invalid choice, exiting.\n";
-  }
-  return 0;
+int main() {
+	PrintHelpFile("help_interactive");
+	cout << "What type values would you like to test in the database?\n";
+	cout << "(1 = integer, 2 = string, 3 = Fraction): ";
+	int choice;
+	cin >> choice;
+	switch (choice) {
+	case 1: {
+		Database<int> db;
+		MainLoop(db);
+		break;
+	}
+	case 2: {
+		Database<string> db;
+		MainLoop(db);
+		break;
+	}
+	case 3: {
+		Database<Fraction> db;
+		MainLoop(db);
+		break;
+	}
+	default:
+		cout << "Invalid choice, exiting.\n";
+	}
+	return 0;
 }
 
 /* DispatchCommand
  * ---------------
  * The most straightforward of command dispatch routines.
  */
- 
-template <typename value> bool DispatchCommand(CommandT command, Database<value>& db)
-{
-  switch(command) {
-  case Read:   return ReadCommand(db); 
-  case Write:  return WriteCommand(db);
-  case Print:  return PrintCommand(db);
-  case Select: return SelectCommand(db); 
-  case Delete: return DeleteCommand(db);
-  case Help:   return HelpCommand(); 
-  case Quit:   return QuitCommand();
-  default: assert(0); return false;
-  }
+
+template<typename value> bool DispatchCommand(CommandT command,
+		Database<value>& db) {
+	switch (command) {
+	case Read:
+		return ReadCommand(db);
+	case Write:
+		return WriteCommand(db);
+	case Print:
+		return PrintCommand(db);
+	case Select:
+		return SelectCommand(db);
+	case Delete:
+		return DeleteCommand(db);
+	case Help:
+		return HelpCommand();
+	case Quit:
+		return QuitCommand();
+	default:
+		assert(0);
+		return false;
+	}
 }
 
 /* 
@@ -149,27 +161,23 @@ template <typename value> bool DispatchCommand(CommandT command, Database<value>
  * straightforward to add new commands.
  */
 
-static struct { 
-  CommandT choice; 
-  const char *name; 
-  const char *helpString; 
-} menu[] = {
-  { Help, "help", 
-      "Print this table of the command descriptions."},
-    { Read, "read", 
-   	"Read database in from file (replaces current db). Requires filename arg."},
-      { Print, "print", 
-	  "Print selected records. Can add arg \"all\" to print all records."},
-	{ Select, "select", 
-	    "Defines and changes selection. Try select with no args for more help."},
-	  { Delete, "delete", 
-	      "Delete selected records. Can add arg \"all\" to delete all records."},
-	    { Write, "write", 
-		"Write current database to a file. Requires filename arg."},
-	      { Quit, "quit", 
-		  "Quit the program."},
-		{}
-};
+static struct {
+	CommandT choice;
+	const char *name;
+	const char *helpString;
+} menu[] =
+		{ { Help, "help", "Print this table of the command descriptions." },
+				{ Read, "read",
+						"Read database in from file (replaces current db). Requires filename arg." },
+				{ Print, "print",
+						"Print selected records. Can add arg \"all\" to print all records." },
+				{ Select, "select",
+						"Defines and changes selection. Try select with no args for more help." },
+				{ Delete, "delete",
+						"Delete selected records. Can add arg \"all\" to delete all records." },
+				{ Write, "write",
+						"Write current database to a file. Requires filename arg." },
+				{ Quit, "quit", "Quit the program." }, { } };
 
 /* HelpCommand
  * -----------
@@ -177,14 +185,13 @@ static struct {
  * which has a short description of each of the commands.
  */
 
-static bool HelpCommand()
-{
-  cout << "\nCmd \tWhat it does\n";
-  cout << "------------------------------------------\n";
-  for (int i = 0; i < NumOptions; i++)
-    cout << menu[i].name << '\t' << menu[i].helpString << '\n';
-  cout << "NOTE: You can abbreviate if the string is unique.\n";
-  return true;
+static bool HelpCommand() {
+	cout << "\nCmd \tWhat it does\n";
+	cout << "------------------------------------------\n";
+	for (int i = 0; i < NumOptions; i++)
+		cout << menu[i].name << '\t' << menu[i].helpString << '\n';
+	cout << "NOTE: You can abbreviate if the string is unique.\n";
+	return true;
 }
 
 /* QuitCommand
@@ -192,11 +199,10 @@ static bool HelpCommand()
  * When quit is chosen.  Just exits the program.
  */
 
-static bool QuitCommand()
-{
-  cout << "Thanks for visiting!\n";
-  exit(0);
-  return true;  // doesn't get here, but compiler doesn't know that
+static bool QuitCommand() {
+	cout << "Thanks for visiting!\n";
+	exit(0);
+	return true;  // doesn't get here, but compiler doesn't know that
 }
 
 /* 
@@ -208,12 +214,11 @@ static bool QuitCommand()
  * current selection.
  */
 
-template <typename value> bool PrintCommand(Database<value>& db)
-{
-  string arg = GetNextToken();
-  bool doAll = arg != "" && strncmp(arg.c_str(), "all", arg.length()) == 0;
-  db.write(cout, doAll? AllRecords: SelectedRecords);
-  return true;
+template<typename value> bool PrintCommand(Database<value>& db) {
+	string arg = GetNextToken();
+	bool doAll = arg != "" && strncmp(arg.c_str(), "all", arg.length()) == 0;
+	db.write(cout, doAll ? AllRecords : SelectedRecords);
+	return true;
 }
 
 /* DeleteCommand
@@ -223,12 +228,11 @@ template <typename value> bool PrintCommand(Database<value>& db)
  * the records in the current selection.
  */
 
-template <typename value> bool DeleteCommand(Database<value>& db)
-{
-  string arg = GetNextToken();
-  bool doAll = arg != "" && strncmp(arg.c_str(), "all", arg.length()) == 0;
-  db.deleteRecords(doAll? AllRecords: SelectedRecords);
-  return true;
+template<typename value> bool DeleteCommand(Database<value>& db) {
+	string arg = GetNextToken();
+	bool doAll = arg != "" && strncmp(arg.c_str(), "all", arg.length()) == 0;
+	db.deleteRecords(doAll ? AllRecords : SelectedRecords);
+	return true;
 }
 
 /* ReadCommand
@@ -240,23 +244,23 @@ template <typename value> bool DeleteCommand(Database<value>& db)
  * opened.
  */
 
-template <typename value> bool ReadCommand(Database<value>& db)
-{
-  string filename = GetNextToken();
-  if (filename == "") {
-    cout << "ERROR: Read requires an argument of file to read from.\n";
-    return false;
-  }
-  
-  ifstream in(filename.c_str());
-  if (!in) {
-    cout << "ERROR: Cannot open file named \"" << filename << "\".\n";
-    return false;
-  }
-  
-  db.read(in);
-  cout << "Read " << db.numRecords() << " records from \""<< filename <<"\".\n";
-  return true;
+template<typename value> bool ReadCommand(Database<value>& db) {
+	string filename = GetNextToken();
+	if (filename == "") {
+		cout << "ERROR: Read requires an argument of file to read from.\n";
+		return false;
+	}
+
+	ifstream in(filename.c_str());
+	if (!in) {
+		cout << "ERROR: Cannot open file named \"" << filename << "\".\n";
+		return false;
+	}
+
+	db.read(in);
+	cout << "Read " << db.numRecords() << " records from \"" << filename
+			<< "\".\n";
+	return true;
 }
 
 /* 
@@ -270,38 +274,33 @@ template <typename value> bool ReadCommand(Database<value>& db)
  * or the named file could not be opened, the write is aborted.
  */
 
-template <typename value> bool WriteCommand(Database<value>& db)
-{
-  string filename = GetNextToken();
-  if (filename == "") {
-    cout << "ERROR: Write requires an argument of filename to write to.\n";
-    return false;
-  }
-  
-  ofstream out(filename.c_str());
-  if (!out) {
-    cout << "ERROR: Cannot open file named \"" << filename << "\".\n";
-    return false;
-  }
-  
-  bool doAll = !db.numSelected();
-  db.write(out, doAll? AllRecords : SelectedRecords);
-  cout << "Wrote " << (doAll ? db.numRecords() : db.numSelected()) << " records to \""<< filename <<"\".\n";
-  return true;
+template<typename value> bool WriteCommand(Database<value>& db) {
+	string filename = GetNextToken();
+	if (filename == "") {
+		cout << "ERROR: Write requires an argument of filename to write to.\n";
+		return false;
+	}
+
+	ofstream out(filename.c_str());
+	if (!out) {
+		cout << "ERROR: Cannot open file named \"" << filename << "\".\n";
+		return false;
+	}
+
+	bool doAll = !db.numSelected();
+	db.write(out, doAll ? AllRecords : SelectedRecords);
+	cout << "Wrote " << (doAll ? db.numRecords() : db.numSelected())
+			<< " records to \"" << filename << "\".\n";
+	return true;
 }
 
-static struct { 
-  DBSelectOperation type; 
-  const char *name; 
-  int minChars;
-} selectCmds[] = {
-  { All,    "all",    2},// min chars required to distinguish from others
-    { Clear,  "clear",  1},
-      { Add,    "add",    2},
-	{ Remove, "remove", 3},
-	  { Refine, "refine", 3},
-	    {}
-};
+static struct {
+	DBSelectOperation type;
+	const char *name;
+	int minChars;
+} selectCmds[] = { { All, "all", 2 }, // min chars required to distinguish from others
+		{ Clear, "clear", 1 }, { Add, "add", 2 }, { Remove, "remove", 3 }, {
+				Refine, "refine", 3 }, { } };
 
 /* SelectCommand
  * -------------
@@ -313,81 +312,86 @@ static struct {
  * unchanged.
  */
 
-template <typename value> bool SelectCommand(Database<value>& db)
-{
-  string arg = GetNextToken();
-  DBSelectOperation type = (DBSelectOperation)-1;
-  
-  if (arg == "") { PrintHelpFile("help_select"); return false;};
-  
-  for (int i = 0; selectCmds[i].name != NULL ; i++) {
-    if ((int(arg.length()) >= selectCmds[i].minChars) && 
-	(strncmp(arg.c_str(), selectCmds[i].name, int(arg.length())) == 0)) {
-      type = selectCmds[i].type;
-      break;
-    }
-  }
-  
-  switch (type) {
-  case All:	
-    db.selectAll(); return true;
-  case Clear: 	
-    db.deselectAll(); return true;
-  case Add: case Remove: case Refine:
-    return SelectWithCriteria(type, db);
-  default:
-    cout << "ERROR: Invalid arguments to select command.\n";
-  }
-  
-  return false;
+template<typename value> bool SelectCommand(Database<value>& db) {
+	string arg = GetNextToken();
+	DBSelectOperation type = (DBSelectOperation) -1;
+
+	if (arg == "") {
+		PrintHelpFile("help_select");
+		return false;
+	};
+
+	for (int i = 0; selectCmds[i].name != NULL; i++) {
+		if ((int(arg.length()) >= selectCmds[i].minChars)
+				&& (strncmp(arg.c_str(), selectCmds[i].name, int(arg.length()))
+						== 0)) {
+			type = selectCmds[i].type;
+			break;
+		}
+	}
+
+	switch (type) {
+	case All:
+		db.selectAll();
+		return true;
+	case Clear:
+		db.deselectAll();
+		return true;
+	case Add:
+	case Remove:
+	case Refine:
+		return SelectWithCriteria(type, db);
+	default:
+		cout << "ERROR: Invalid arguments to select command.\n";
+	}
+
+	return false;
 }
 
 static struct {
-  DBQueryOperator op; 
-  const char *name;
-} queryOps[] = {
-  { Equal, "=" },
-    { NotEqual,  "!="},
-      { LessThan, "<"},
-	{ GreaterThan, ">"},
-	  {}
-};
+	DBQueryOperator op;
+	const char *name;
+} queryOps[] = { { Equal, "=" }, { NotEqual, "!=" }, { LessThan, "<" }, {
+		GreaterThan, ">" }, { } };
 
-static DBQueryOperator isQuery(const string &arg)
-{
-  for (int i = 0; queryOps[i].name != NULL; i++) {
-    if (arg == queryOps[i].name)
-      return queryOps[i].op;
-  }
-  
-  return (DBQueryOperator)-1;
+static DBQueryOperator isQuery(const string &arg) {
+	for (int i = 0; queryOps[i].name != NULL; i++) {
+		if (arg == queryOps[i].name)
+			return queryOps[i].op;
+	}
+
+	return (DBQueryOperator) -1;
 }
 
-template <typename value> bool SelectWithCriteria(DBSelectOperation type, Database<value>& db)
-{
-  string arg = GetNextToken();
-  DBQueryOperator op = (DBQueryOperator)-1;
-  
-  if (arg == "") { PrintHelpFile("help_criteria"); return false;};
-  
-  string fieldname = arg;
-  while (true) {
-    string arg = GetNextToken();
-    if (arg == "") { // got to end of line without query op
-      cout << "ERROR: Invalid criteria given to select command.\n"; 
-      return false;
-    };
-    
-    op = isQuery(arg);	 // check if query operator
-    if (op != -1) break;
-    fieldname += " " + arg;  // otherwise concatenate onto fieldname
-  }
+template<typename value> bool SelectWithCriteria(DBSelectOperation type,
+		Database<value>& db) {
+	string arg = GetNextToken();
+	DBQueryOperator op = (DBQueryOperator) -1;
 
-  TrimString(fieldname);
-  value val;
-  GetCriteriaValue(val);
-  db.select(type, fieldname, op, val);
-  return true;
+	if (arg == "") {
+		PrintHelpFile("help_criteria");
+		return false;
+	};
+
+	string fieldname = arg;
+	while (true) {
+		string arg = GetNextToken();
+		if (arg == "") { // got to end of line without query op
+			cout << "ERROR: Invalid criteria given to select command.\n";
+			return false;
+		};
+
+		op = isQuery(arg);	 // check if query operator
+		if (op != -1)
+			break;
+		fieldname += " " + arg;  // otherwise concatenate onto fieldname
+	}
+
+	TrimString(fieldname);
+	value val;
+	GetCriteriaValue(val);
+	db.select(type, fieldname, op, val);
+	return true;
 }
 
 /* PrintHelpFile
@@ -399,16 +403,15 @@ template <typename value> bool SelectWithCriteria(DBSelectOperation type, Databa
  * commands in separate files.
  */
 
-static void PrintHelpFile(const string& filename)
-{
-  ifstream in(filename.c_str());
-  
-  assert(in);
-  while (in && in.peek() != EOF) {
-    string line;
-    getline(in, line);
-    cout << '\n' << line;		// echo line to terminal
-  }
+static void PrintHelpFile(const string& filename) {
+	ifstream in(filename.c_str());
+
+	assert(in);
+	while (in && in.peek() != EOF) {
+		string line;
+		getline(in, line);
+		cout << '\n' << line;		// echo line to terminal
+	}
 }
 
 /* PrintMenuOptions
@@ -418,15 +421,15 @@ static void PrintHelpFile(const string& filename)
  * reflected here.
  */
 
-static void PrintMenuOptions()
-{
-  cout << "Commands are [";
-  for (int i = 0; i < NumOptions; i++) {
-    cout << menu[i].name;
-    if (i != NumOptions-1) cout << ", ";
-  }
-  
-  cout << "].\n";
+static void PrintMenuOptions() {
+	cout << "Commands are [";
+	for (int i = 0; i < NumOptions; i++) {
+		cout << menu[i].name;
+		if (i != NumOptions - 1)
+			cout << ", ";
+	}
+
+	cout << "].\n";
 }
 
 /* istrstream static variable
@@ -448,12 +451,11 @@ static istringstream *istr = NULL;	// keep stream around between calls
  * something went wrong parsing the earlier line.
  */
 
-static void InitCommandLine()
-{
-  static string commandline;  // static since str uses it
-  getline(cin, commandline);  // get line from user
-  delete istr;
-  istr = new istringstream(commandline.c_str()); // start new stream up
+static void InitCommandLine() {
+	static string commandline;  // static since str uses it
+	getline(cin, commandline);  // get line from user
+	delete istr;
+	istr = new istringstream(commandline.c_str()); // start new stream up
 }
 
 /* GetCriteriaValue
@@ -463,10 +465,9 @@ static void InitCommandLine()
  * right thing from the command line into value.
  */
 
-template <typename value>
-void GetCriteriaValue(value& val)
-{
-  *istr >> val;   // pull off next "whatever" from command line
+template<typename value>
+void GetCriteriaValue(value& val) {
+	*istr >> val;   // pull off next "whatever" from command line
 }
 
 /* GetCriteriaValue
@@ -476,9 +477,8 @@ void GetCriteriaValue(value& val)
  * string for the value.
  */
 
-void GetCriteriaValue(string& val)
-{
-  val = GetNextToken(false);
+void GetCriteriaValue(string& val) {
+	val = GetNextToken(false);
 }
 
 /* GetNextToken
@@ -490,17 +490,16 @@ void GetCriteriaValue(string& val)
  * read method.
  */
 
-static string GetNextToken(bool singleWord)
-{
-  string result;
-  
-  if (singleWord)
-    *istr >> result;   // get next white-space-delimited from command line
-  else {
-    getline(*istr, result, '\n');
-    TrimString(result);
-  }
-  return result;
+static string GetNextToken(bool singleWord) {
+	string result;
+
+	if (singleWord)
+		*istr >> result;   // get next white-space-delimited from command line
+	else {
+		getline(*istr, result, '\n');
+		TrimString(result);
+	}
+	return result;
 }
 
 /* GetCommandFromUser
@@ -511,18 +510,18 @@ static string GetNextToken(bool singleWord)
  * else they have to enter again.
  */
 
-static CommandT GetCommandFromUser()
-{    
-  while (true) {
-    PrintMenuOptions();
-    cout << "Enter command: ";
-    InitCommandLine();	// read in next line and start scanning it
-    string command = GetNextToken();
-    
-    for (int i = 0; i < NumOptions; i++) {	// look up in cmd table
-      if (strncmp(command.c_str(), menu[i].name, int(command.length())) == 0)
-	return menu[i].choice;	// found a match
-    }
-    cout <<"ERROR: \"" << command <<"\" is not a valid option.\n\n";
-  }
+static CommandT GetCommandFromUser() {
+	while (true) {
+		PrintMenuOptions();
+		cout << "Enter command: ";
+		InitCommandLine();	// read in next line and start scanning it
+		string command = GetNextToken();
+
+		for (int i = 0; i < NumOptions; i++) {	// look up in cmd table
+			if (strncmp(command.c_str(), menu[i].name, int(command.length()))
+					== 0)
+				return menu[i].choice;	// found a match
+		}
+		cout << "ERROR: \"" << command << "\" is not a valid option.\n\n";
+	}
 }
