@@ -1,30 +1,149 @@
+/**
+ * Write the content of the database within scope to output stream.
+ * 
+ * @param out	The output stream
+ * @param scope	AllRecords      - All record in the database
+ * 				SelectedRecords - Selected record in the database
+ */
 template<class value>
 void Database<value>::write(ostream& out, DBScope scope) const {
-
+	for (auto iter = _database.cbegin(); iter != _database.cend(); ++iter) {
+		if (!iter->isSelected() && scope == SelectedRecords)
+			continue;
+		out << (*iter) << endl;
+	}
 }
 
+/**
+ * Read a new set from the given, current records will be cleared.
+ *
+ * @param in	The input stream
+ */
 template<class value>
 void Database<value>::read(istream& in) {
+	// clear current database
+	_database.clear();
+	num_records = 0;
+	num_selected = 0;
 
+	assert(in);
+	while (in && in.peek() != EOF) {
+		Record < value > record;
+		in >> record;
+		_database.push_back(record);
+		++num_records;
+	}
 }
 
+/**
+ * Delete records in the database within the scope.
+ * 
+ * @param scope	AllRecords      - All record in the database
+ * 				SelectedRecords - Selected record in the database
+ */
 template<class value>
 void Database<value>::deleteRecords(DBScope scope) {
-
+	switch (scope) {
+	case AllRecords:
+		_database.clear();
+		num_records = 0;
+		num_selected = 0;
+		break;
+	case SelectedRecords:
+		for (auto iter = _database.begin(); iter != _database.end(); ++iter) {
+			if (iter->isSelected()) {
+				_database.erase(iter);
+				--num_records;
+				--num_selected;
+			}
+		}
+		break;
+	default:
+		break;
+	}
 }
 
+/**
+ * Select all records in the database.
+ */
 template<class value>
 void Database<value>::selectAll() {
-
+	for (auto iter = _database.begin(); iter != _database.end(); ++iter) {
+		iter->setSelected(true);
+	}
+	num_selected = _database.size();
 }
 
+/**
+ * Clear selection of all records.
+ */
 template<class value>
 void Database<value>::deselectAll() {
-
+	for (auto iter = _database.begin(); iter != _database.end(); ++iter) {
+		iter->setSelected(false);
+	}
+	num_selected = 0;
 }
 
+/**
+ * Select record from database within given condition
+ * 
+ * @param selOp The operation performed on the selected record
+ * 				All    - Select all records in the database. 
+ * 				Clear  - Deselect all records in the database.
+ * 				Add    - Add matched record to current selection.
+ * 				Remove - Remove matched record in current selection.
+ * 				Refine - Only select records that match the new criteria.
+ * @param attr	The attritube name of the record
+ * 				* - Matches any attritube name with the val.
+ * @param op	Queray operator for different matching criteria.
+ * 				Equal       - Record's value equals val in given attr.
+ * 				NotEqual    - Record's value not equals val in given attr.
+ * 				LessThan    - Record's value equals is less than val in given attr.
+ * 				GreaterThan - Record's value equals is greater than val in given attr.
+ * @param val	The value of the attritube.
+ */
 template<class value>
 void Database<value>::select(DBSelectOperation selOp, const string& attr,
 		DBQueryOperator op, const value& val) {
-
+	switch (selOp) {
+	case All: {
+		selectAll();
+		break;
+	}
+	case Clear: {
+		deselectAll();
+		break;
+	}
+	case Add: {
+		for (auto iter = _database.begin(); iter != _database.end(); ++iter) {
+			if (!iter->isSelected() && iter->matchesQuery(attr, op, val)) {
+				iter->setSelected(true);
+				++num_selected;
+			}
+		}
+		break;
+	}
+	case Remove: {
+		for (auto iter = _database.begin(); iter != _database.end(); ++iter) {
+			if (iter->isSelected() && iter->matchesQuery(attr, op, val)) {
+				iter->setSelected(false);
+				--num_selected;
+			}
+		}
+		break;
+	}
+	case Refine: {
+		deselectAll();
+		for (auto iter = _database.begin(); iter != _database.end(); ++iter) {
+			if (!iter->isSelected() && iter->matchesQuery(attr, op, val)) {
+				iter->setSelected(true);
+				++num_selected;
+			}
+		}
+		break;
+	}
+	default:
+		break;
+	}
 }

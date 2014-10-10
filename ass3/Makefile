@@ -1,5 +1,5 @@
 
-CPPFLAGS = -Wall -Werror -O2
+CPPFLAGS = -Wall -Werror -O2 -ggdb
 # enable this for debugging
 #CPPFLAGS = -Wall -g
 CXX = g++ -std=c++11
@@ -8,7 +8,7 @@ CXX = g++ -std=c++11
 
 LDFLAGS =
 READTEST_SRCS = readrecord.cpp fraction.cpp
-DB_SRCS = fraction.cpp interactive.cpp
+DB_SRCS = fraction.cpp test.cpp
 READTEST_OBJS = $(READTEST_SRCS:.cpp=.o)
 DB_OBJS = $(DB_SRCS:.cpp=.o)
 PROGS = db 

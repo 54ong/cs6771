@@ -1,22 +1,146 @@
+/**
+ * Read value from input stream.
+ * 
+ * @param in  The input stream.
+ * @param val Stores the input stream.
+ */
+template<class value>
+inline void ReadValue(istream& in, value& val) {
+	in >> val;
+}
+
+/**
+ * Special version for string type.
+ */
+template<>
+inline void ReadValue<string>(istream& in, string& val) {
+	getline(in, val, '\n');
+	TrimString(val);
+}
+
+/**
+ * Output record from a stream.
+ * 
+ * @param  out The output stream.
+ * @param  r   The record that outputed.
+ * @return out
+ */
 template<class value>
 ostream& operator<<(ostream& out, const Record<value>& r) {
+	out << '{' << endl;
+	for (auto iter = r.record.begin(); iter != r.record.end(); ++iter)
+		out << "  " << iter->first << " = " << iter->second << endl;
+	out << '}' << endl;
 	return out;
 }
 
+/**
+ * Read record from a stream.
+ * 
+ * @param  in The input stream.
+ * @param  r  The destation to store record.
+ * @return 
+ */
 template<class value>
 istream& operator>>(istream& in, Record<value>& r) {
+	if (in.peek() != '{') {
+		in.setstate(ios::failbit);
+		return in;
+	}
+
+	in.ignore(1024, '\n');
+	while (true) {
+		string line;
+		getline(in, line, '\n');
+//		cout << "line: " << line << endl;
+		istringstream istr(line.c_str());
+		if (istr.peek() == '}')
+			break;
+
+		pair<string, value> entry;
+		getline(istr, entry.first, '=');
+		TrimString(entry.first);
+		ReadValue(istr, entry.second);
+//		cout << entry.first << "=" << entry.second << endl;
+		r.record.push_back(entry);
+	}
 	return in;
 }
 
+/**
+ * Match the record within the given attr, op, want
+ * 
+ * @param attr	The attritube name of the record
+ * 				* - Matches any attritube name with the val.
+ * @param op	Queray operator for different matching criteria.
+ * 				Equal       - Record's value equals val in given attr.
+ * 				NotEqual    - Record's value not equals val in given attr.
+ * 				LessThan    - Record's value equals is less than val in given attr.
+ * 				GreaterThan - Record's value equals is greater than val in given attr.
+ * @param val	The value of the attritube.
+ *
+ * @return true if the attritube matches
+ * 		   false otherwise
+ */
 template<class value>
 bool Record<value>::matchesQuery(const string& attr, DBQueryOperator op,
 		const value& want) const {
+	for (auto iter = record.cbegin(); iter != record.cend(); ++iter) {
+		if (iter->first != attr || attr != "*")
+			continue;
+		switch (op) {
+		case Equal:
+			if (iter->second == want)
+				return true;
+			break;
+		case NotEqual:
+			if (iter->second != want)
+				return true;
+			break;
+		case LessThan:
+			if (iter->second < want)
+				return true;
+			break;
+		case GreaterThan:
+			if (iter->second > want)
+				return true;
+			break;
+		default:
+			return false;
+		}
+	}
 	return false;
 }
 
+/**
+ * Special template for string.
+ */
 template<>
 bool Record<string>::matchesQuery(const string& attr, DBQueryOperator op,
-		const value& want) const {
-	
+		const string& want) const {
+	for (auto iter = record.begin(); iter != record.end(); ++iter) {
+		if (iter->first != attr || attr != "*")
+			continue;
+		switch (op) {
+		case Equal:
+			if (iter->second.compare(want) == 0)
+				return true;
+			break;
+		case NotEqual:
+			if (iter->second.compare(want) != 0)
+				return true;
+			break;
+		case LessThan:
+			if (!iter->second.compare(want) < 0)
+				return true;
+			break;
+		case GreaterThan:
+			if (!iter->second.compare(want) > 0)
+				return true;
+			break;
+		default:
+			return false;
+		}
+	}
 	return false;
 }

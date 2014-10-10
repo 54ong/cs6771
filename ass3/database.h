@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "record.h"
+#include "fraction.h"
 
 using namespace std;
 

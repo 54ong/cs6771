@@ -4,9 +4,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
 
 #include "utility.h"
+#include "fraction.h"
+
+using namespace std;
 
 /* Database enums
  * --------------
@@ -26,7 +28,7 @@ enum DBQueryOperator {
 	Equal, NotEqual, LessThan, GreaterThan
 };
 
-template<class> class Record;
+template<class > class Record;
 template<class value> ostream& operator<<(ostream& out, const Record<value>& r);
 template<class value> istream& operator>>(istream& in, Record<value>& r);
 
@@ -44,6 +46,7 @@ public:
 private:
 	bool _isSelected;
 	vector<pair<string, value>> record;
+	inline void ReadValue(istream& in, value& val);
 };
 
 #include "record.tem"

@@ -94,7 +94,7 @@ template<typename value> void MainLoop(Database<value>& db) {
  */
 
 int main() {
-	PrintHelpFile("help_interactive");
+//	PrintHelpFile("help_interactive");
 	cout << "What type values would you like to test in the database?\n";
 	cout << "(1 = integer, 2 = string, 3 = Fraction): ";
 	int choice;
