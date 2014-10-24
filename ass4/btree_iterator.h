@@ -16,6 +16,7 @@ template<typename T> class btree_iterator;
 template<typename T> class const_btree_iterator;
 
 template<typename T> class btree_iterator {
+public:
 	typedef ptrdiff_t                  	difference_type;
 	typedef bidirectional_iterator_tag	iterator_category;
 	typedef T 						   	value_type;
@@ -23,21 +24,56 @@ template<typename T> class btree_iterator {
 	typedef T& 							reference;
 	friend class const_btree_iterator<T>;
 
-	reference operator*() const;
-	pointer operator->() const { return &(operator*()); }
+	reference       operator*()  const;
+	pointer         operator->() const { return &(operator*()); }
 	btree_iterator& operator++();
-	bool operator==(const List_Iterator& other) const;
-	bool operator!=(const List_Iterator& other) const
-	{ return !operator==(other); }
-	List_Iterator(typename List<T>::Node *pointee = nullptr) : pointee_(pointee) {}
-	private:
-	typename List<T>::Node *pointee_;
+	btree_iterator& operator--();
+	btree_iterator  operator++(int);
+	btree_iterator  operator--(int);
+	btree_iterator& operator=(const btree_iterator& iter);
+	bool			operator==(const btree_iterator& other) const;
+	bool            operator==(const const_btree_iterator<T>& other) const;
+	bool			operator!=(const btree_iterator& other) const
+											{ return !operator==(other); }
+	bool            operator!=(const const_btree_iterator<T>& other) const
+											{ return !operator==(other); }
+	btree_iterator(typename btree<T>::Node *pointee = nullptr, size_t idx = 0,
+			const btree<T> *btree = NULL) :
+			pointee_(pointee), idx_(idx), btree_(btree) {}
 
-
+private:
+	typename btree<T>::Node *pointee_;
+	size_t idx_;
+	const btree<T> *btree_;
 };
 
 template<typename T> class const_btree_iterator {
+public:
+	typedef ptrdiff_t                  	difference_type;
+	typedef bidirectional_iterator_tag	iterator_category;
+	typedef T 						   	value_type;
+	typedef const T* 					pointer;
+	typedef const T& 					reference;
+	friend class btree_iterator<T>;
 
+	reference       	  operator*()  const;
+	pointer        		  operator->() const { return &(operator*()); }
+	const_btree_iterator& operator++();
+	const_btree_iterator& operator--();
+	const_btree_iterator  operator++(int);
+	const_btree_iterator  operator--(int);
+	const_btree_iterator& operator=(const btree_iterator& iter);
+	bool			operator==(const btree_iterator& other) const;
+	bool            operator==(const const_btree_iterator<T>& other) const;
+	bool			operator!=(const btree_iterator& other) const
+											{ return !operator==(other); }
+	bool            operator!=(const const_btree_iterator<T>& other) const
+											{ return !operator==(other); }
+
+private:
+	typename btree<T>::Node *pointee_;
+	size_t idx_;
+	const btree<T> *btree_;
 };
 
 #include "btree_iterator.tem"
