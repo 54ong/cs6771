@@ -107,14 +107,14 @@ public:
 	/**
 	 * Iterators for B-tree.
 	 */
-	iterator begin() const;
-	iterator end() const;
-	reverse_iterator rbegin() const;
-	reverse_iterator rend() const;
-	const_iterator cbegin() const;
-	const_iterator cend() const;
-	const_reverse_iterator crbegin() const;
-	const_reverse_iterator crend() const;
+	iterator 				begin() 	const;
+	iterator 				end() 		const;
+	reverse_iterator 		rbegin() 	const;
+	reverse_iterator 		rend() 		const;
+	const_iterator 			cbegin() 	const;
+	const_iterator 			cend() 		const;
+	const_reverse_iterator 	crbegin() 	const;
+	const_reverse_iterator 	crend() 	const;
 
 	/**
 	 * Returns an iterator to the matching element, or whatever
@@ -197,8 +197,8 @@ private:
 		};
 
 		// helper functions
-		inline bool is_full() const { return __occupied_size_ == __max_size_; };
-		inline size_t size() const { return __occupied_size_; };
+		inline bool	  is_full() const { return __occupied_size_ == __max_size_; };
+		inline size_t size() 	const { return __occupied_size_; };
 
 		// parameters
 		T      *__elem_;

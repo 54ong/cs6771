@@ -30,7 +30,7 @@ public:
 	btree_iterator& operator--();
 	btree_iterator  operator++(int);
 	btree_iterator  operator--(int);
-	btree_iterator& operator=(const btree_iterator& iter);
+	btree_iterator& operator =(const btree_iterator& other);
 	bool			operator==(const btree_iterator& other) const;
 	bool            operator==(const const_btree_iterator<T>& other) const;
 	bool			operator!=(const btree_iterator& other) const
@@ -42,6 +42,17 @@ public:
 			pointee_(pointee), idx_(idx), btree_(btree) {}
 
 private:
+	/**
+	 * helper functions
+	 */
+    void asc_up(const T& e);
+    void asc_down();
+    void desc_up(const T& e);
+    void desc_down();
+
+    /**
+     * private parameters
+     */
 	typename btree<T>::Node *pointee_;
 	size_t idx_;
 	const btree<T> *btree_;
@@ -62,22 +73,31 @@ public:
 	const_btree_iterator& operator--();
 	const_btree_iterator  operator++(int);
 	const_btree_iterator  operator--(int);
-	const_btree_iterator& operator=(const btree_iterator& iter);
-	bool			operator==(const const_btree_iterator& other) const;
-	bool            operator==(const btree_iterator<T>& other) const;
-	bool			operator!=(const const_btree_iterator& other) const
-											{ return !operator==(other); }
-	bool            operator!=(const btree_iterator<T>& other) const
-											{ return !operator==(other); }
+	const_btree_iterator& operator =(const const_btree_iterator& other);
+	bool				  operator==(const const_btree_iterator& other) const;
+	bool            	  operator==(const btree_iterator<T>& other) const;
+	bool				  operator!=(const const_btree_iterator& other) const	{ return !operator==(other); }
+	bool            	  operator!=(const btree_iterator<T>& other) const		{ return !operator==(other); }
 	const_btree_iterator(typename btree<T>::Node *pointee = nullptr, size_t idx = 0,
 			const btree<T> *btree = NULL) :
 			pointee_(pointee), idx_(idx), btree_(btree) {}
 private:
-	typename btree<T>::Node *pointee_;
+	/**
+	 * helper functions
+	 */
+    void asc_up(const T& e);
+    void asc_down();
+    void desc_up(const T& e);
+    void desc_down();
+
+    /**
+     * private parameters
+     */
+    typename btree<T>::Node *pointee_;
 	size_t idx_;
 	const btree<T> *btree_;
 };
 
-#include "btree_iterator.tem"
-
+//#include "btree_iterator.tem"
+#include "btree_iterator.tem.cpp"
 #endif
