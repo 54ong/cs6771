@@ -278,4 +278,3 @@ const_btree_iterator<T>::desc_down() {
 	pointee_ = pointee_->__descendants_[idx_ + 1];
 	desc_down();
 }
-
