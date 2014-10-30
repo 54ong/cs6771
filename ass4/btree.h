@@ -226,6 +226,7 @@ private:
  * and the compiler would be peeved.
  */
 
-#include "btree.tem"
+//#include "btree.tem"
+#include "btree.tem.cpp"
 
 #endif
