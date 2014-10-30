@@ -180,17 +180,24 @@ btree<T>::insert(const T& elem) {
 		if(node_ == nullptr){
 			node_ = new Node(parent, __maxNodeElems, elem);
 			if(*ptr_ == root_) {
-
-
+				head_ = root_;
+				tail_ = root_;
 			} else if(new_head == true) {
-
+				head_ = *ptr_;
+				new_head = false;
 			} else if(new_tail == true) {
-
+				tail_ = *ptr_;
+				new_tail = false;
 			}
+			++__tree_Size_;
 			return make_pair(iterator(*node_, 0, this), true);
 		} else if(!node_->is_full()){
 			// insert elem in current node
 			size_t i = 0;
+			for(; i < node_-> __occupied_size_; ++i){
+
+			}
+
 
 			return make_pair(iterator(node_, i, this), true);
 		} else {
