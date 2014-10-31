@@ -1,7 +1,7 @@
-#include "btree.h";
+//#include "btree.h"
 // your btree iterator implementation goes here
 template<typename T> typename btree_iterator<T>::reference
-btree_iterator<T>::operator*() const {
+btree_iterator<T>::operator *() const {
 	return pointee_->__elem_[idx_];
 }
 
@@ -81,14 +81,15 @@ btree_iterator<T>::operator =(const btree_iterator& other) {
 template<typename T> bool
 btree_iterator<T>::operator ==(
 		const btree_iterator<T>& other) const {
-	return btree_ == other.btree_ && pointee_ == other.pointee_ && idx_ = other.idx_;
+	return btree_ == other.btree_ && pointee_ == other.pointee_
+			&& idx_ == other.idx_;
 }
 
 template<typename T> bool
 btree_iterator<T>::operator ==(
 		const const_btree_iterator<T>& other) const {
-	return btree_ == other.btree_ && pointee_ == other.pointee_ && idx_ =
-			other.idx_;
+	return btree_ == other.btree_ && pointee_ == other.pointee_
+			&& idx_ == other.idx_;
 }
 
 template<typename T> void
@@ -147,7 +148,7 @@ const_btree_iterator<T>::operator *() const {
 	return pointee_->__elem_[idx_];
 }
 
-template<typename T> const_btree_iterator&
+template<typename T> const_btree_iterator<T>&
 const_btree_iterator<T>::operator ++() {
 	if (pointee_ == nullptr) {
 		pointee_ = btree_->head_;
@@ -171,7 +172,7 @@ const_btree_iterator<T>::operator ++() {
 	return *this;
 }
 
-template<typename T> const_btree_iterator&
+template<typename T> const_btree_iterator<T>&
 const_btree_iterator<T>::operator --() {
 	if (pointee_ == nullptr) {
 		pointee_ = btree_->tail_;
@@ -194,21 +195,21 @@ const_btree_iterator<T>::operator --() {
 	return *this;
 }
 
-template<typename T> const_btree_iterator
+template<typename T> const_btree_iterator<T>
 const_btree_iterator<T>::operator ++(int) {
 	const_btree_iterator ret = *this;
 	operator ++();
 	return ret;
 }
 
-template<typename T> const_btree_iterator
+template<typename T> const_btree_iterator<T>
 const_btree_iterator<T>::operator --(int) {
 	const_btree_iterator ret = *this;
 	operator --();
 	return ret;
 }
 
-template<typename T> const_btree_iterator&
+template<typename T> const_btree_iterator<T>&
 const_btree_iterator<T>::operator =(const const_btree_iterator& other) {
 	if (this == &other) {
 		return *this;
@@ -223,13 +224,13 @@ const_btree_iterator<T>::operator =(const const_btree_iterator& other) {
 template<typename T> bool
 const_btree_iterator<T>::operator ==(
 		const const_btree_iterator& other) const {
-	return btree_ == other.btree_ && pointee_ == other.pointee_ && idx_ = other.idx_;
+	return btree_ == other.btree_ && pointee_ == other.pointee_ && idx_ == other.idx_;
 }
 
 template<typename T> bool
 const_btree_iterator<T>::operator ==(
 		const btree_iterator<T>& other) const {
-	return btree_ == other.btree_ && pointee_ == other.pointee_ && idx_ = other.idx_;
+	return btree_ == other.btree_ && pointee_ == other.pointee_ && idx_ == other.idx_;
 }
 
 template<typename T> void

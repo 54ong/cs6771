@@ -24,7 +24,7 @@ public:
 	typedef T& 							reference;
 	friend class const_btree_iterator<T>;
 
-	reference       operator*()  const;
+	reference       operator *() const;
 	pointer         operator->() const { return &(operator*()); }
 	btree_iterator& operator++();
 	btree_iterator& operator--();
@@ -37,10 +37,12 @@ public:
 											{ return !operator==(other); }
 	bool            operator!=(const const_btree_iterator<T>& other) const
 											{ return !operator==(other); }
+//	no matching function for call to
+//  btree_iterator<long int>::
+//	btree_iterator(btree<long int>::Node&, int, btree<long int>* const)’
 	btree_iterator(typename btree<T>::Node *pointee = nullptr, size_t idx = 0,
-			const btree<T> *btree = NULL) :
+			 const btree<T> *btree = nullptr) :
 			pointee_(pointee), idx_(idx), btree_(btree) {}
-
 private:
 	/**
 	 * helper functions
@@ -49,7 +51,6 @@ private:
     void asc_down();
     void desc_up(const T& e);
     void desc_down();
-
     /**
      * private parameters
      */
@@ -98,6 +99,6 @@ private:
 	const btree<T> *btree_;
 };
 
-//#include "btree_iterator.tem"
-#include "btree_iterator.tem.cpp"
+#include "btree_iterator.tem"
+//#include "btree_iterator.tem.cpp"
 #endif

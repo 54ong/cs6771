@@ -33,8 +33,8 @@ public:
 	friend class const_btree_iterator<T> ;
 	typedef btree_iterator<T> iterator;
 	typedef const_btree_iterator<T> const_iterator;
-	typedef reverse_iterator<iterator> reverse_iterator;
-	typedef reverse_iterator<const_iterator> const_reverse_iterator;
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/**
 	 * Constructs an empty btree.  Note that
@@ -183,10 +183,12 @@ public:
 private:
 	// The details of your implementation go here
 	struct Node {
-		Node(size_t maxElem_ = 40, Node *parent_) :
+		Node(size_t maxElem_ = 40, Node *parent_ = nullptr, const T& elem = NULL) :
 				__elem_(new T[maxElem_]), __parent_(parent_), __descendants_(
 						new Node*[maxElem_ + 1]()), __occupied_size_(0), __max_size_(
-						maxElem_) {};
+						maxElem_) {
+			__elem_[0] = elem;
+		};
 		~Node() {
 			for (size_t i = 0; i < __max_size_ + 1; ++i) {
 				if(__descendants_[i] != nullptr)
@@ -210,9 +212,9 @@ private:
 	};
 
 	Node *root_, *head_, *tail_;
-	size_t __maxNodeElems;  // The maximum number of elements that can be stored
-						    // in each B-Tree node
-	size_t __tree_Size_;    // The size (node number) of the b-tree.
+	size_t __maxNodeElems;  	// The maximum number of elements that can be
+						    	// stored in each B-Tree node
+	size_t __tree_Size_;    	// The size (node number) of the b-tree.
 };
 
 /**
@@ -226,7 +228,7 @@ private:
  * and the compiler would be peeved.
  */
 
-//#include "btree.tem"
-#include "btree.tem.cpp"
+#include "btree.tem"
+//#include "btree.tem.cpp"
 
 #endif
