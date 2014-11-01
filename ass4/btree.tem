@@ -10,7 +10,7 @@
  */
 template<typename T>
 btree<T>::btree(size_t maxNodeElems) :
-		root_(NULL), head_(NULL), tail_(NULL), __maxNodeElems(maxNodeElems),
+		root_(nullptr), head_(nullptr), tail_(nullptr), __maxNodeElems(maxNodeElems),
 			__tree_Size_(0) {}
 
 /**
@@ -21,7 +21,7 @@ btree<T>::btree(size_t maxNodeElems) :
  */
 template<typename T>
 btree<T>::btree(const btree<T>& original) :
-		root_(new Node(*(original.root_))), head_(NULL), tail_(NULL), __maxNodeElems(
+		root_(new Node(*(original.root_))), head_(nullptr), tail_(nullptr), __maxNodeElems(
 				original.__maxNodeElems), __tree_Size_(0) {
 
 }
@@ -91,12 +91,24 @@ btree<T>::operator=(btree<T> && rhs) {
 
 template<typename T> typename btree<T>::iterator
 btree<T>::begin() const {
-	return iterator(head_, 0, this);
+	Node* tmp = head_;
+	if(tmp != nullptr) {
+		while(tmp->__descendants_[0] != nullptr) 
+			tmp = tmp->__descendants_[0];
+		return iterator(tmp, 0, this);
+	} else {
+		return end();
+	}
 }
 
 template<typename T> typename btree<T>::iterator
 btree<T>::end() const {
-	return iterator(nullptr, 0, this);
+	Node* tmp = head_;
+	if (tmp != nullptr) {
+		while (tmp->__descendants_[tmp->__max_size_] != nullptr)
+			tmp = tmp->__descendants_[tmp->__max_size_];
+	}
+	return iterator(tmp, tmp->__max_size_, this);
 }
 
 template<typename T> typename btree<T>::reverse_iterator
@@ -127,6 +139,58 @@ btree<T>::crbegin() const {
 template<typename T> typename btree<T>::const_reverse_iterator
 btree<T>::crend() const {
 	return const_reverse_iterator(begin());
+}
+
+/**
+ * Puts a breadth-first traversal of the B-Tree onto the output
+ * stream os. Elements must, in turn, support the output operator.
+ * Elements are separated by space. Should not output any newlines.
+ *
+ * @param os a reference to a C++ output stream
+ * @param tree a const reference to a B-Tree object
+ * @return a reference to os
+ */
+template<typename T> std::ostream&
+operator<<(std::ostream& os, const btree<T>& tree) {
+	vector<typename btree<T>::Node *> _currLevel;
+	vector<typename btree<T>::Node *> _nextLevel;
+
+	_currLevel.push_back(tree.root_);
+	while (!_currLevel.empty()) {
+		typename vector<typename btree<T>::Node *>::const_iterator iter;
+		for (iter = _currLevel.begin(); iter != _currLevel.end(); ++iter) {
+			typename btree<T>::Node * _node = *iter;
+			size_t i;
+			for (i = 0; i < _node->__occupied_size_; ++i) {
+				os << _node->__elem_[i] << " ";
+				if (_node->__descendants_[i] != nullptr)
+					_nextLevel.push_back(_node->__descendants_[i]);
+			}
+			// descendant always have one more
+			if (_node->__descendants_[i] != nullptr) 
+				_nextLevel.push_back(_node->__descendants_[i]);
+		}
+		_currLevel = _nextLevel;
+		_nextLevel.clear();
+	}
+//	queue<typename btree<T>::Node*> queue_nodes;
+//	queue_nodes.push(tree.head_);
+//	while(queue_nodes.size() != 0) {
+//		typename btree<T>::Node* temp = queue_nodes.front();
+//		queue_nodes.pop();
+//		for(size_t i = 0 ; i < temp->__occupied_size_; ++i) {
+//			os << temp->elements[i] << " ";
+//		}
+//		if(temp->isfull()) {
+//			for(size_t i = 0 ; i <= temp->__occupied_size_; ++i) {
+//				if(temp->childnodes[i] != nullptr) 
+//					queue_nodes.push(temp->childnodes[i]);
+//			}
+//		}
+//	}
+
+	
+	return os;
 }
 
 /**
@@ -252,13 +316,11 @@ btree<T>::insert(const T& elem) {
 	Node *parent = NULL;
 	bool new_head = false;
 	bool new_tail = false;
-
 	while (true) {
 		Node *tmp_ = *ptr_;
-		// No element in the btree currently, create a new Node elem
 		if (tmp_ == nullptr) {
-			tmp_ = new Node(__maxNodeElems, parent, elem);
-//			tmp_ = new Node(__maxNodeElems, parent);
+			// No element in the btree currently, create a new Node elem
+			*ptr_ = new Node(__maxNodeElems, parent, elem);
 			if (*ptr_ == root_) {
 				head_ = root_;
 				tail_ = root_;
@@ -273,17 +335,22 @@ btree<T>::insert(const T& elem) {
 			return make_pair(iterator(tmp_, 0, this), true);
 		} else {
 			// search current node to see if elem exists
-			size_t i = 0;
-			for (; i < tmp_->__occupied_size_; ++i) {
+			size_t i;
+			for (i = 0; i < tmp_->__occupied_size_; ++i) {
 				if (tmp_->__elem_[i] == elem) {
 					// elem already exists in current node, should return false.
 					return make_pair(iterator(tmp_, i, this), false);
 				} else if (tmp_->__elem_[i] > elem) {
 					if (tmp_->is_full()) {
-
+						// current node is full, need to check descendants nodes
+						for (auto t = 0; t < tmp_->__occupied_size_; ++t)
+							cout << tmp_->__elem_[t] << " ";
+						cout << endl;
+						ptr_ = &(tmp_->__descendants_[i]);
+						break;
 					} else {
-						for (size_t j = tmp_->__occupied_size_ - 1;
-								j >= i && j > 0; --j) {
+						// move existing element 
+						for (size_t j = tmp_->__occupied_size_ - 1; j >= i && j > 0; --j) {
 							tmp_->__elem_[j + 1] = tmp_->__elem_[j];
 						}
 						tmp_->__elem_[i] = elem;
@@ -307,85 +374,13 @@ btree<T>::insert(const T& elem) {
 				// elem is larger than all exist elements, add to the end
 				if (tmp_->__occupied_size_ == i)
 					tmp_->__elem_[i] = elem;
-
 				++tmp_->__occupied_size_;
 				++__tree_Size_;
 				return make_pair(iterator(tmp_, i, this), true);
 			}
 
 		}
-		/*/			if (!node_->is_full()) {
-		//				// insert elem in current node
-		//				for (i = 0; i < node_->__occupied_size_; ++i) {
-		//					if (node_->__elem_[i] == elem) {
-		//						// elem already exists in current node.
-		//						// should return false.
-		//						return make_pair(iterator(node_, i, this), false);
-		//					} else if (node_->__elem_[i] > elem) {
-		//						for (size_t j = node_->__occupied_size_ - 1;
-		//								j >= i && j > 0; --j) {
-		//							node_->__elem_[j + 1] = node_->__elem_[j];
-		//						}
-		//						node_->__elem_[i] = elem;
-		//						break;
-		//					}
-		//				}
-		//				// elem is larger than all exist elements, add to the end
-		//				if (node_->__occupied_size_ == i)
-		//					node_->__elem_[i] = elem;
-		//
-		//				++node_->__occupied_size_;
-		//				++__tree_Size_;
-		//				return make_pair(iterator(node_, i, this), true);
-		//			} else {
-		//				// current node is full, will search or create a descendant node
-		//				size_t i = 0;
-		//				for (; i < node_->__max_size_; ++i) {
-		//					if (node_->__elem_[i] == elem) {
-		//						return make_pair(iterator(node_, i, this), false);
-		//					} else if (node_->__elem_[i] > elem) {
-		//
-		//					}
-		//				}
-		/		}*/
+
 	}
 
 }
-
-/**
- * Puts a breadth-first traversal of the B-Tree onto the output
- * stream os. Elements must, in turn, support the output operator.
- * Elements are separated by space. Should not output any newlines.
- *
- * @param os a reference to a C++ output stream
- * @param tree a const reference to a B-Tree object
- * @return a reference to os
- */
-template<typename T> std::ostream&
-operator<<(std::ostream& os, const btree<T>& tree) {
-	if (tree.__maxNodeElems == 0)
-		return os;
-	vector<typename btree<T>::Node *> _currLevel;
-	vector<typename btree<T>::Node *> _nextLevel;
-
-	_currLevel.push_back(tree.root_);
-	while (!_currLevel.empty()) {
-		typename vector<typename btree<T>::Node *>::const_iterator iter;
-		for (iter = _currLevel.begin(); iter != _currLevel.end(); ++iter) {
-			typename btree<T>::Node * _node = *iter;
-			size_t i = 0;
-			for(; i < _node->__occupied_size_; ++i){
-				os << _node->__elem_[i] << " ";
-				if(_node->__descendants_[i] != nullptr){
-					_nextLevel.push_back(_node->__descendants_[i]);
-				}
-			}
-			if(_node->__descendants_[i] != nullptr){
-				_nextLevel.push_back(_node->__descendants_[i]);
-			}
-		}
-		_currLevel = _nextLevel;
-		_nextLevel.clear();
-	}
-}
-

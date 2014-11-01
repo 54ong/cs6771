@@ -114,15 +114,15 @@ bool confirmEverythingMatches(const btree<long>& testContainer, const set<long>&
  **/
 int main(void) {
   // initialise random number generator with 'random' seed
-  initRandom();
+//  initRandom();
 
   // insert lots of random numbers and compare with a known correct container
-  btree<long> testContainer(99);
-  set<long> stableContainer;
-    
-  insertRandomNumbers(testContainer, stableContainer, 1000000);
-  btree<long> btcpy = testContainer;
-  confirmEverythingMatches(btcpy, stableContainer);
+//  btree<long> testContainer(99);
+//  set<long> stableContainer;
+//
+//  insertRandomNumbers(testContainer, stableContainer, 1000000);
+//  btree<long> btcpy = testContainer;
+//  confirmEverythingMatches(btcpy, stableContainer);
 
 /***
   

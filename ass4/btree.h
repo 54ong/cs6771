@@ -14,6 +14,8 @@
 #include <cstddef>
 #include <utility>
 #include <vector>
+#include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -185,10 +187,14 @@ private:
 	struct Node {
 		Node(size_t maxElem_ = 40, Node *parent_ = nullptr, const T& elem = NULL) :
 				__elem_(new T[maxElem_]), __parent_(parent_), __descendants_(
-						new Node*[maxElem_ + 1]()), __occupied_size_(0), __max_size_(
+						new Node*[maxElem_ + 1]()), __occupied_size_(1), __max_size_(
 						maxElem_) {
 			__elem_[0] = elem;
 		};
+		Node(size_t maxElem_ = 40, Node *parent_ = nullptr) :
+						__elem_(new T[maxElem_]), __parent_(parent_), __descendants_(
+								new Node*[maxElem_ + 1]()), __occupied_size_(0), __max_size_(
+								maxElem_) {	};
 		~Node() {
 			for (size_t i = 0; i < __max_size_ + 1; ++i) {
 				if(__descendants_[i] != nullptr)
