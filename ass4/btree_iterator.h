@@ -37,9 +37,6 @@ public:
 											{ return !operator==(other); }
 	bool            operator!=(const const_btree_iterator<T>& other) const
 											{ return !operator==(other); }
-//	no matching function for call to
-//  btree_iterator<long int>::
-//	btree_iterator(btree<long int>::Node&, int, btree<long int>* const)’
 	btree_iterator(typename btree<T>::Node *pointee = nullptr, size_t idx = 0,
 			 const btree<T> *btree = nullptr) :
 			pointee_(pointee), idx_(idx), btree_(btree) {}
@@ -82,6 +79,8 @@ public:
 	const_btree_iterator(typename btree<T>::Node *pointee = nullptr, size_t idx = 0,
 			const btree<T> *btree = NULL) :
 			pointee_(pointee), idx_(idx), btree_(btree) {}
+	const_btree_iterator(const btree_iterator<T>& rhs) :
+			pointee_(rhs.pointee_), idx_(rhs.idx_), btree_(rhs.btree_) {}
 private:
 	/**
 	 * helper functions

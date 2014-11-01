@@ -1,7 +1,5 @@
 // your btree implementation goes here
 //#include "btree.h"
-//#include "btree_iterator.h"
-
 /**
  * Default constructor for BTree.
  *
@@ -21,9 +19,23 @@ btree<T>::btree(size_t maxNodeElems) :
  */
 template<typename T>
 btree<T>::btree(const btree<T>& original) :
-		root_(new Node(*(original.root_))), head_(nullptr), tail_(nullptr), __maxNodeElems(
+		root_(nullptr), head_(nullptr), tail_(nullptr), __maxNodeElems(
 				original.__maxNodeElems), __tree_Size_(0) {
-
+	queue<typename btree<T>::Node*> queue_nodes;
+	queue_nodes.push(original.root_);
+	while (queue_nodes.size() != 0) {
+		typename btree<T>::Node* tmp = queue_nodes.front();
+		queue_nodes.pop();
+		for (size_t i = 0; i < tmp->__occupied_size_; ++i) {
+			insert(tmp->__elem_[i]);
+		}
+		if (tmp->is_full()) {
+			for (size_t i = 0; i <= tmp->__occupied_size_; ++i) {
+				if (tmp->__descendants_[i] != nullptr)
+					queue_nodes.push(tmp->__descendants_[i]);
+			}
+		}
+	}
 }
 
 /**
@@ -35,7 +47,7 @@ btree<T>::btree(const btree<T>& original) :
 template<typename T>
 btree<T>::btree(btree<T> && original) :
 		root_(original.root_), head_(original.head_), tail_(original.tail_), __maxNodeElems(
-				original.__maxNodeElems), __tree_Size_(0) {
+				original.__maxNodeElems), __tree_Size_(original.__tree_Size_) {
 }
 
 template<typename T>
@@ -51,14 +63,29 @@ btree<T>::~btree() {
  */
 template<typename T> btree<T>&
 btree<T>::operator=(const btree<T>& rhs) {
-	if (this != rhs) {
+	if (this != &rhs) {
 		delete root_;
 		root_ = nullptr;
 		head_ = nullptr;
 		tail_ = nullptr;
-		root_ = rhs.root_;
+		
+		queue<typename btree<T>::Node*> queue_nodes;
+		queue_nodes.push(rhs.root_);
+		while (queue_nodes.size() != 0) {
+			typename btree<T>::Node* tmp = queue_nodes.front();
+			queue_nodes.pop();
+			for (size_t i = 0; i < tmp->__occupied_size_; ++i) {
+				insert(tmp->__elem_[i]);
+			}
+			if (tmp->is_full()) {
+				for (size_t i = 0; i <= tmp->__occupied_size_; ++i) {
+					if (tmp->__descendants_[i] != nullptr)
+						queue_nodes.push(tmp->__descendants_[i]);
+				}
+			}
+		}
 		__maxNodeElems = rhs.__maxNodeElems;
-		__tree_Size_ = 0;
+		__tree_Size_ = rhs.__tree_Size_;
 	}
 	return *this;
 }
@@ -77,38 +104,57 @@ btree<T>::operator=(btree<T> && rhs) {
 		root_ = nullptr;
 		head_ = nullptr;
 		tail_ = nullptr;
-		root_ = rhs.root_;
 		__maxNodeElems = rhs.__maxNodeElems;
-		__tree_Size_ = 0;
+		__tree_Size_ = rhs.__tree_Size_;
+		root_ = rhs.root_;
 
 		rhs.root_ = new Node(__maxNodeElems);
 		rhs.head_ = nullptr;
 		rhs.tail_ = nullptr;
-		rhs.__tree_Size_ = 0;
+	}
+	return *this;
+}
+
+template<typename T> typename btree<T>::Node&
+btree<T>::Node::operator =(const btree<T>::Node& rhs) {
+	if (this != &rhs) {
+		delete this;
+		__max_size_ = rhs.__max_size_;
+		__occupied_size_ = rhs.__occupied_size_;
+		__elem_ = new T[__max_size_];
+		__parent_ = nullptr;
+		for (size_t i = 0; i < __max_size_; ++i) {
+			if (rhs.__descendants_[i] != nullptr) {
+				Node tmp(*rhs.__descendants_[i]);
+				__descendants_[i] = &tmp;
+			}
+		}
 	}
 	return *this;
 }
 
 template<typename T> typename btree<T>::iterator
 btree<T>::begin() const {
-	Node* tmp = head_;
-	if(tmp != nullptr) {
-		while(tmp->__descendants_[0] != nullptr) 
-			tmp = tmp->__descendants_[0];
-		return iterator(tmp, 0, this);
-	} else {
-		return end();
-	}
+//	Node* tmp = head_;
+//	if(tmp != nullptr) {
+//		while(tmp->__descendants_[0] != nullptr) 
+//			tmp = tmp->__descendants_[0];
+//		return iterator(tmp, 0, this);
+//	} else {
+//		return end();
+//	}
+	return iterator(head_, 0, this);
 }
 
 template<typename T> typename btree<T>::iterator
 btree<T>::end() const {
-	Node* tmp = head_;
-	if (tmp != nullptr) {
-		while (tmp->__descendants_[tmp->__max_size_] != nullptr)
-			tmp = tmp->__descendants_[tmp->__max_size_];
-	}
-	return iterator(tmp, tmp->__max_size_, this);
+//	Node* tmp = head_;
+//	if (tmp != nullptr) {
+//		while (tmp->__descendants_[tmp->__occupied_size_] != nullptr)
+//			tmp = tmp->__descendants_[tmp->__occupied_size_];
+//	}
+//	return iterator(tmp, tmp->__occupied_size_, this);
+	return iterator(NULL, 0, this);
 }
 
 template<typename T> typename btree<T>::reverse_iterator
@@ -123,12 +169,12 @@ btree<T>::rend() const {
 
 template<typename T> typename btree<T>::const_iterator
 btree<T>::cbegin() const {
-	return const_iterator(head_, 0, this);
+	return const_iterator(begin());
 }
 
 template<typename T> typename btree<T>::const_iterator
 btree<T>::cend() const {
-	return const_iterator(nullptr, 0, this);
+	return const_iterator(end());
 }
 
 template<typename T> typename btree<T>::const_reverse_iterator
@@ -173,23 +219,6 @@ operator<<(std::ostream& os, const btree<T>& tree) {
 		_currLevel = _nextLevel;
 		_nextLevel.clear();
 	}
-//	queue<typename btree<T>::Node*> queue_nodes;
-//	queue_nodes.push(tree.head_);
-//	while(queue_nodes.size() != 0) {
-//		typename btree<T>::Node* temp = queue_nodes.front();
-//		queue_nodes.pop();
-//		for(size_t i = 0 ; i < temp->__occupied_size_; ++i) {
-//			os << temp->elements[i] << " ";
-//		}
-//		if(temp->isfull()) {
-//			for(size_t i = 0 ; i <= temp->__occupied_size_; ++i) {
-//				if(temp->childnodes[i] != nullptr) 
-//					queue_nodes.push(temp->childnodes[i]);
-//			}
-//		}
-//	}
-
-	
 	return os;
 }
 
@@ -211,9 +240,9 @@ template<typename T> typename btree<T>::iterator
 btree<T>::find(const T& elem) {
 	Node *tmp_ = root_;
 	while(true) {
-		size_t i = 0;
+		size_t i;
 		// go through all elements from root to tail
-		for (; i < tmp_->__occupied_size_; ++i) {
+		for (i = 0; i < tmp_->__occupied_size_; ++i) {
 			if (tmp_->__elem_[i] == elem) {
 				// find the elem, return an iterator
 				return iterator(tmp_, i, this);
@@ -252,9 +281,9 @@ template<typename T> typename btree<T>::const_iterator
 btree<T>::find(const T& elem) const {
 	Node *tmp_ = root_;
 	while(true) {
-		size_t i = 0;
+		size_t i;
 		// go through all elements from root to tail
-		for (; i < tmp_->__occupied_size_; ++i) {
+		for (i = 0; i < tmp_->__occupied_size_; ++i) {
 			if (tmp_->__elem_[i] == elem) {
 				// find the elem, return an iterator
 				return const_iterator(tmp_, i, this);
@@ -309,9 +338,6 @@ btree<T>::find(const T& elem) const {
  */
 template<typename T> std::pair<typename btree<T>::iterator, bool>
 btree<T>::insert(const T& elem) {
-	if (__maxNodeElems == 0)
-		return make_pair(end(), false);
-
 	Node **ptr_ = &root_;
 	Node *parent = NULL;
 	bool new_head = false;
@@ -320,7 +346,7 @@ btree<T>::insert(const T& elem) {
 		Node *tmp_ = *ptr_;
 		if (tmp_ == nullptr) {
 			// No element in the btree currently, create a new Node elem
-			*ptr_ = new Node(__maxNodeElems, parent, elem);
+			*ptr_ = new Node(elem, __maxNodeElems, parent);
 			if (*ptr_ == root_) {
 				head_ = root_;
 				tail_ = root_;
@@ -343,9 +369,9 @@ btree<T>::insert(const T& elem) {
 				} else if (tmp_->__elem_[i] > elem) {
 					if (tmp_->is_full()) {
 						// current node is full, need to check descendants nodes
-						for (auto t = 0; t < tmp_->__occupied_size_; ++t)
-							cout << tmp_->__elem_[t] << " ";
-						cout << endl;
+//						for (auto t = 0; t < tmp_->__occupied_size_; ++t)
+//							cout << tmp_->__elem_[t] << " ";
+//						cout << endl;
 						ptr_ = &(tmp_->__descendants_[i]);
 						break;
 					} else {
@@ -361,6 +387,7 @@ btree<T>::insert(const T& elem) {
 
 			// handling boundaries cases
 			if (tmp_->is_full()) {
+//				std::cout << i << std::endl;
 				if (i == 0) {
 					if (tmp_ == head_)
 						new_head = true;

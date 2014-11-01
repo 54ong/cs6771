@@ -185,16 +185,37 @@ public:
 private:
 	// The details of your implementation go here
 	struct Node {
-		Node(size_t maxElem_ = 40, Node *parent_ = nullptr, const T& elem = NULL) :
-				__elem_(new T[maxElem_]), __parent_(parent_), __descendants_(
-						new Node*[maxElem_ + 1]()), __occupied_size_(1), __max_size_(
-						maxElem_) {
-			__elem_[0] = elem;
-		};
+		Node( const T& elem ,size_t maxElem_ = 40, Node *parent_ = nullptr) :
+					__elem_(new T[maxElem_]),
+					__parent_(parent_),
+					__descendants_(new Node*[maxElem_ + 1]()),
+					__occupied_size_(1),
+					__max_size_(maxElem_) { __elem_[0] = elem; };
 		Node(size_t maxElem_ = 40, Node *parent_ = nullptr) :
-						__elem_(new T[maxElem_]), __parent_(parent_), __descendants_(
-								new Node*[maxElem_ + 1]()), __occupied_size_(0), __max_size_(
-								maxElem_) {	};
+					__elem_(new T[maxElem_]),
+					__parent_(parent_),
+					__descendants_(new Node*[maxElem_ + 1]()),
+					__occupied_size_(0),
+					__max_size_(maxElem_) {	};
+//		Node(const Node& original) :
+//					__elem_(new T[original.__max_size_]),
+//					__parent_(original.__parent_),
+//					__descendants_(new Node*[original.__max_size_ + 1]()),
+//					__occupied_size_(original.__occupied_size_),
+//					__max_size_(original.__max_size_) {
+//			std::copy(original.__elem_,
+//					original.__elem_ + original.__occupied_size_, __elem_);
+//			std::cout << "copy constr of node " << std::endl;
+//			for(size_t i = 0; i < __occupied_size_; ++i)
+//				std::cout << __elem_[i] << " ";
+//			std::cout << std::endl;
+//			for (size_t i = 0; i <= __max_size_; ++i) {
+//				if (original.__descendants_[i] != nullptr) {
+//					Node *tmp = new Node(*(original.__descendants_[i]));
+//					__descendants_[i] = tmp;
+//				}
+//			}
+//		}
 		~Node() {
 			for (size_t i = 0; i < __max_size_ + 1; ++i) {
 				if(__descendants_[i] != nullptr)
@@ -203,6 +224,7 @@ private:
 			delete [] __elem_;
 			delete [] __descendants_;
 		};
+		Node& operator=(const Node& rhs);
 
 		// helper functions
 		inline bool	  is_full() const { return __occupied_size_ == __max_size_; };
